@@ -1,0 +1,16 @@
+# 開發檔案
+*.log
+.DS_Store
+Thumbs.db
+
+# 臨時檔案
+*.tmp
+*.temp
+
+# 編輯器設定
+.vscode/
+.idea/
+
+# 不需要的檔案
+oauth-setup.html
+updated-apps-script.js

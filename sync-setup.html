@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UTM Manager - Google Sheet 同步設定</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="shared/styles.css">
+</head>
+<body>
+  <!-- 導航列 -->
+  <nav class="nav-container">
+    <div class="text-xl font-bold">UTM Manager</div>
+    <div class="nav-tabs">
+      <a href="index.html" class="nav-tab">🔗 產生器</a>
+      <a href="history.html" class="nav-tab">📋 我的連結</a>
+      <a href="templates.html" class="nav-tab">📝 常用範本</a>
+    </div>
+  </nav>
+
+  <!-- 主要內容 -->
+  <div class="main-container">
+    <div class="page-card max-w-3xl mx-auto">
+      <h1 class="text-2xl font-bold mb-6 text-center">🔄 Google Sheet 同步設定</h1>
+      
+      <!-- 功能介紹 -->
+      <div class="mb-8">
+        <h2 class="text-lg font-semibold mb-4">同步功能說明</h2>
+        <div class="bg-blue-50 p-4 rounded-lg">
+          <p class="text-blue-800">將你的 UTM 連結記錄自動同步到 Google Sheet，方便團隊共享和分析數據。</p>
+        </div>
+      </div>
+
+      <!-- 設定步驟 -->
+      <div class="mb-8">
+        <h2 class="text-lg font-semibold mb-4">設定步驟</h2>
+        
+        <!-- 步驟1 -->
+        <div class="mb-6 border border-gray-200 rounded-lg p-4">
+          <div class="flex items-start gap-3 mb-3">
+            <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">1</span>
+            <h3 class="font-medium text-lg">建立 Google Sheet</h3>
+          </div>
+          <div class="ml-9 space-y-2 text-sm text-gray-600">
+            <p>• 建立一個新的 Google Sheet</p>
+            <p>• 在第一列設定以下標題（順序可調整）：</p>
+            <div class="bg-gray-100 p-3 rounded font-mono text-xs">
+              timestamp | websiteurl | utm_source | utm_medium | utm_campaign | utm_term | utm_content | finalurl
+            </div>
+          </div>
+        </div>
+
+        <!-- 步驟2 -->
+        <div class="mb-6 border border-gray-200 rounded-lg p-4">
+          <div class="flex items-start gap-3 mb-3">
+            <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">2</span>
+            <h3 class="font-medium text-lg">建立 Google Apps Script</h3>
+          </div>
+          <div class="ml-9 space-y-2 text-sm text-gray-600">
+            <p>• 前往 <a href="https://script.google.com" target="_blank" class="text-blue-600 hover:underline">script.google.com</a></p>
+            <p>• 點擊「新增專案」</p>
+            <p>• 將以下程式碼貼入編輯器：</p>
+            <div class="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto">
+              <pre>function doGet(e) {
+  return ContentService.createTextOutput("Hello, I am a UTM link builder.");
+}
+
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const spreadsheetId = 'YOUR_SPREADSHEET_ID'; // 替換成你的 Sheet ID
+    const sheetName = '工作表1'; // 替換成你的工作表名稱
+    
+    const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName(sheetName);
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    
+    let rowData = headers.map(header => {
+      const key = header.toLowerCase().replace(/\s\(.*\)/, '').replace(/_/g, '').replace(/\s/g, '');
+      const dataKey = key.includes('utm') ? `utm_${key.replace('utm','')}` : key;
+      return data[dataKey] || '';
+    });
+    
+    sheet.appendRow(rowData);
+    return ContentService.createTextOutput(JSON.stringify({ 'result': 'success' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ 'result': 'error', 'message': error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- 步驟3 -->
+        <div class="mb-6 border border-gray-200 rounded-lg p-4">
+          <div class="flex items-start gap-3 mb-3">
+            <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">3</span>
+            <h3 class="font-medium text-lg">修改程式碼設定</h3>
+          </div>
+          <div class="ml-9 space-y-2 text-sm text-gray-600">
+            <p>• 將 <code class="bg-gray-100 px-1 rounded">YOUR_SPREADSHEET_ID</code> 替換成你的 Google Sheet ID</p>
+            <p>• Sheet ID 可從網址中取得：<code class="bg-gray-100 px-1 rounded text-xs">https://docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit</code></p>
+            <p>• 確認 <code class="bg-gray-100 px-1 rounded">sheetName</code> 與你的工作表名稱一致</p>
+          </div>
+        </div>
+
+        <!-- 步驟4 -->
+        <div class="mb-6 border border-gray-200 rounded-lg p-4">
+          <div class="flex items-start gap-3 mb-3">
+            <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">4</span>
+            <h3 class="font-medium text-lg">部署為 Web App</h3>
+          </div>
+          <div class="ml-9 space-y-2 text-sm text-gray-600">
+            <p>• 點擊「部署」→「新增部署作業」</p>
+            <p>• 類型選擇「網頁應用程式」</p>
+            <p>• 執行身分：選擇你的帳號</p>
+            <p>• 存取權：「任何人」</p>
+            <p>• 點擊「部署」並複製 Web App URL</p>
+          </div>
+        </div>
+
+        <!-- 步驟5 -->
+        <div class="mb-6 border border-gray-200 rounded-lg p-4">
+          <div class="flex items-start gap-3 mb-3">
+            <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">5</span>
+            <h3 class="font-medium text-lg">在 UTM Manager 中設定</h3>
+          </div>
+          <div class="ml-9 space-y-2 text-sm text-gray-600">
+            <p>• 前往「我的連結」頁面</p>
+            <p>• 點擊「⚙️ 同步設定」</p>
+            <p>• 貼上你的 Web App URL</p>
+            <p>• 系統會自動測試連線</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 測試區域 -->
+      <div class="mb-8 p-4 bg-green-50 border border-green-200 rounded-lg">
+        <h3 class="font-medium text-green-800 mb-3">🧪 測試同步功能</h3>
+        <div class="space-y-3">
+          <input type="url" id="testApiUrl" placeholder="貼上你的 Google Apps Script Web App URL" class="form-input">
+          <button id="testSync" class="btn-primary w-full">測試連線</button>
+        </div>
+      </div>
+
+      <!-- 常見問題 -->
+      <div class="mb-8">
+        <h2 class="text-lg font-semibold mb-4">常見問題</h2>
+        <div class="space-y-4">
+          <div class="border border-gray-200 rounded-lg p-4">
+            <h4 class="font-medium mb-2">❓ 同步失敗怎麼辦？</h4>
+            <ul class="text-sm text-gray-600 space-y-1">
+              <li>• 確認 Google Sheet 的標題列格式正確</li>
+              <li>• 檢查 Apps Script 中的 spreadsheetId 和 sheetName</li>
+              <li>• 確認 Web App 的存取權設定為「任何人」</li>
+            </ul>
+          </div>
+          
+          <div class="border border-gray-200 rounded-lg p-4">
+            <h4 class="font-medium mb-2">🔒 資料安全性如何？</h4>
+            <ul class="text-sm text-gray-600 space-y-1">
+              <li>• 只有你設定的 Google Sheet 會接收資料</li>
+              <li>• Web App URL 儲存在你的瀏覽器本地</li>
+              <li>• 可隨時清除設定停用同步功能</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 操作按鈕 -->
+      <div class="text-center">
+        <a href="history.html" class="text-blue-600 hover:underline">← 回到我的連結</a>
+      </div>
+
+      <div id="statusMessage" class="text-center text-sm mt-4"></div>
+    </div>
+  </div>
+
+  <script src="shared/utils.js"></script>
+  <script src="shared/sync-api.js"></script>
+  <script>
+    document.getElementById('testSync').addEventListener('click', async () => {
+      const apiUrl = document.getElementById('testApiUrl').value.trim();
+      
+      if (!apiUrl) {
+        showStatus('請輸入 Web App URL', 'error');
+        return;
+      }
+      
+      // 暫時設定URL進行測試
+      const originalUrl = syncManager.apiUrl;
+      syncManager.setApiUrl(apiUrl);
+      
+      try {
+        showStatus('正在測試連線...', 'info');
+        await syncManager.testConnection();
+        showStatus('✅ 連線測試成功！', 'success');
+      } catch (error) {
+        showStatus(`❌ 連線測試失敗: ${error.message}`, 'error');
+        // 恢復原設定
+        syncManager.setApiUrl(originalUrl);
+      }
+    });
+  </script>
+
+  <style>
+    .status-success { @apply text-green-600; }
+    .status-error { @apply text-red-600; }
+    .status-info { @apply text-blue-600; }
+    code { @apply bg-gray-100 px-1 rounded text-sm; }
+  </style>
+</body>
+</html>

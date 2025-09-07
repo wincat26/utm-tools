@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UTM Manager - AI 設定說明</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="shared/styles.css">
+</head>
+<body>
+  <!-- 導航列 -->
+  <nav class="nav-container">
+    <div class="text-xl font-bold">UTM Manager</div>
+    <div class="nav-tabs">
+      <a href="index.html" class="nav-tab">🔗 產生器</a>
+      <a href="history.html" class="nav-tab">📋 我的連結</a>
+      <a href="templates.html" class="nav-tab">📝 常用範本</a>
+    </div>
+  </nav>
+
+  <!-- 主要內容 -->
+  <div class="main-container">
+    <div class="page-card max-w-2xl mx-auto">
+      <h1 class="text-2xl font-bold mb-6 text-center">🤖 AI 助手設定說明</h1>
+      
+      <!-- 功能介紹 -->
+      <div class="mb-8">
+        <h2 class="text-lg font-semibold mb-4">AI 助手能做什麼？</h2>
+        <div class="space-y-3">
+          <div class="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
+            <span class="text-blue-600">🎯</span>
+            <div>
+              <div class="font-medium text-blue-900">智能填寫 UTM 參數</div>
+              <div class="text-sm text-blue-700">描述你的活動，AI 自動生成正確的 UTM 參數</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+            <span class="text-green-600">💬</span>
+            <div>
+              <div class="font-medium text-green-900">回答 UTM 相關問題</div>
+              <div class="text-sm text-green-700">不知道怎麼設定？直接問 AI 獲得專業建議</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-3 bg-orange-50 rounded-lg">
+            <span class="text-orange-600">🔍</span>
+            <div>
+              <div class="font-medium text-orange-900">自動錯誤診斷</div>
+              <div class="text-sm text-orange-700">即時檢查參數格式，提供修正建議</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 設定步驟 -->
+      <div class="mb-8">
+        <h2 class="text-lg font-semibold mb-4">如何設定 Gemini API Key？</h2>
+        <div class="space-y-4">
+          <div class="flex items-start gap-3">
+            <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">1</span>
+            <div>
+              <div class="font-medium">前往 Google AI Studio</div>
+              <div class="text-sm text-gray-600 mt-1">
+                開啟 <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-600 hover:underline">https://aistudio.google.com/app/apikey</a>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex items-start gap-3">
+            <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">2</span>
+            <div>
+              <div class="font-medium">建立 API Key</div>
+              <div class="text-sm text-gray-600 mt-1">點擊「Create API Key」按鈕</div>
+            </div>
+          </div>
+          
+          <div class="flex items-start gap-3">
+            <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">3</span>
+            <div>
+              <div class="font-medium">複製 API Key</div>
+              <div class="text-sm text-gray-600 mt-1">複製生成的 API Key（以 AIza 開頭）</div>
+            </div>
+          </div>
+          
+          <div class="flex items-start gap-3">
+            <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">4</span>
+            <div>
+              <div class="font-medium">在 UTM Manager 中設定</div>
+              <div class="text-sm text-gray-600 mt-1">回到產生器頁面，點擊 AI 區塊的「⚙️ 設定」按鈕，貼上你的 API Key</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 使用範例 -->
+      <div class="mb-8">
+        <h2 class="text-lg font-semibold mb-4">使用範例</h2>
+        <div class="space-y-4">
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <div class="font-medium mb-2">📝 智能填寫範例</div>
+            <div class="text-sm text-gray-600 mb-2">在 AI 輸入框中描述：</div>
+            <div class="bg-white p-2 rounded border text-sm italic">"Google Ads 夏季特賣活動，關鍵字是涼感床墊"</div>
+            <div class="text-sm text-gray-600 mt-2">AI 會自動填寫：source=google, medium=cpc, campaign=summer_sale_2024 等</div>
+          </div>
+          
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <div class="font-medium mb-2">❓ 問答範例</div>
+            <div class="text-sm text-gray-600 mb-2">在 AI 輸入框中詢問：</div>
+            <div class="bg-white p-2 rounded border text-sm italic">"Facebook 廣告應該用什麼 UTM 參數？"</div>
+            <div class="text-sm text-gray-600 mt-2">AI 會提供專業建議和具體參數設定</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 隱私說明 -->
+      <div class="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <h3 class="font-medium text-yellow-800 mb-2">🔒 隱私與安全</h3>
+        <ul class="text-sm text-yellow-700 space-y-1">
+          <li>• API Key 僅儲存在你的瀏覽器本地，不會上傳到任何伺服器</li>
+          <li>• 只有你輸入的 UTM 描述會傳送給 Google AI 進行處理</li>
+          <li>• 你可以隨時清除 API Key 停用 AI 功能</li>
+        </ul>
+      </div>
+
+      <!-- 操作按鈕 -->
+      <div class="text-center space-y-4">
+        <button id="testAI" class="btn-primary">🧪 測試 AI 連線</button>
+        <div>
+          <a href="index.html" class="text-blue-600 hover:underline">← 回到 UTM 產生器</a>
+        </div>
+      </div>
+
+      <div id="statusMessage" class="text-center text-sm mt-4"></div>
+    </div>
+  </div>
+
+  <script src="shared/utils.js"></script>
+  <script src="shared/ai-helper.js"></script>
+  <script>
+    document.getElementById('testAI').addEventListener('click', async () => {
+      if (!aiHelper.checkApiKey()) {
+        showStatus('請先設定 API Key', 'error');
+        return;
+      }
+      
+      try {
+        showStatus('正在測試 AI 連線...', 'info');
+        await aiHelper.askQuestion('測試連線');
+        showStatus('✅ AI 連線正常！', 'success');
+      } catch (error) {
+        showStatus(`❌ 連線失敗: ${error.message}`, 'error');
+      }
+    });
+  </script>
+
+  <style>
+    .status-success { @apply text-green-600; }
+    .status-error { @apply text-red-600; }
+    .status-info { @apply text-blue-600; }
+  </style>
+</body>
+</html>

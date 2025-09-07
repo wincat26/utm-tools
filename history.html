@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UTM Manager - 我的連結</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="shared/styles.css">
+</head>
+<body>
+  <!-- 導航列 -->
+  <nav class="nav-container">
+    <div class="text-xl font-bold">UTM Manager</div>
+    <div class="nav-tabs">
+      <a href="index.html" class="nav-tab">🔗 產生器</a>
+      <a href="history.html" class="nav-tab">📋 我的連結</a>
+      <a href="templates.html" class="nav-tab">📝 常用範本</a>
+    </div>
+  </nav>
+
+  <!-- 主要內容 -->
+  <div class="main-container">
+    <div class="page-card">
+      <h1 class="text-2xl font-bold mb-6">我的連結記錄</h1>
+      
+      <!-- 搜尋和篩選 -->
+      <div class="mb-6 flex flex-col sm:flex-row gap-4">
+        <div class="flex-1">
+          <input type="text" id="searchInput" placeholder="搜尋活動名稱..." class="form-input">
+        </div>
+        <div>
+          <select id="timeFilter" class="form-input">
+            <option value="all">全部時間</option>
+            <option value="today">今天</option>
+            <option value="week">本週</option>
+            <option value="month">本月</option>
+          </select>
+        </div>
+        <div class="flex gap-2">
+          <button id="syncRecords" class="btn-primary">🔄 同步至 Google Sheet</button>
+          <div class="flex gap-1">
+            <button id="syncSettings" class="btn-secondary">⚙️ 設定</button>
+            <a href="sync-setup.html" class="btn-secondary text-xs">📚 說明</a>
+          </div>
+          <button id="clearAll" class="btn-secondary">清空記錄</button>
+        </div>
+      </div>
+
+      <!-- 記錄列表 -->
+      <div id="recordsList" class="space-y-3">
+        <!-- 記錄項目將在這裡動態生成 -->
+      </div>
+
+      <!-- 空狀態 -->
+      <div id="emptyState" class="text-center py-12 text-gray-500 hidden">
+        <div class="text-4xl mb-4">📝</div>
+        <p>還沒有任何記錄</p>
+        <p class="text-sm mt-2">
+          <a href="index.html" class="text-blue-600 hover:underline">前往產生器</a> 建立你的第一個 UTM 連結
+        </p>
+      </div>
+
+      <!-- 同步進度 -->
+      <div id="syncProgress" class="hidden mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div class="flex justify-between items-center mb-2">
+          <span class="font-medium text-blue-900">正在同步...</span>
+          <span id="syncProgressText" class="text-sm text-blue-700">0/0</span>
+        </div>
+        <div class="w-full bg-blue-200 rounded-full h-2">
+          <div id="syncProgressBar" class="bg-blue-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div id="statusMessage" class="text-center text-sm mt-4"></div>
+    </div>
+  </div>
+
+  <script src="shared/utils.js"></script>
+  <script src="shared/sync-api.js"></script>
+  <script src="shared/url-shortener.js"></script>
+  <script>
+    let allRecords = [];
+    let filteredRecords = [];
+
+    // DOM 元素
+    const elements = {
+      searchInput: document.getElementById('searchInput'),
+      timeFilter: document.getElementById('timeFilter'),
+      clearAll: document.getElementById('clearAll'),
+      recordsList: document.getElementById('recordsList'),
+      emptyState: document.getElementById('emptyState')
+    };
+
+    // 載入記錄
+    function loadRecords() {
+      allRecords = Storage.get('utm_records') || [];
+      filterRecords();
+    }
+
+    // 篩選記錄
+    function filterRecords() {
+      const searchTerm = elements.searchInput.value.toLowerCase();
+      const timeFilter = elements.timeFilter.value;
+      
+      filteredRecords = allRecords.filter(record => {
+        // 搜尋篩選
+        const matchesSearch = !searchTerm || 
+          record.utmCampaign.toLowerCase().includes(searchTerm) ||
+          record.websiteUrl.toLowerCase().includes(searchTerm);
+        
+        // 時間篩選
+        const recordDate = new Date(record.timestamp);
+        const now = new Date();
+        let matchesTime = true;
+        
+        switch (timeFilter) {
+          case 'today':
+            matchesTime = recordDate.toDateString() === now.toDateString();
+            break;
+          case 'week':
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            matchesTime = recordDate >= weekAgo;
+            break;
+          case 'month':
+            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            matchesTime = recordDate >= monthAgo;
+            break;
+        }
+        
+        return matchesSearch && matchesTime;
+      });
+      
+      renderRecords();
+    }
+
+    // 渲染記錄列表
+    function renderRecords() {
+      if (filteredRecords.length === 0) {
+        elements.recordsList.innerHTML = '';
+        elements.emptyState.classList.remove('hidden');
+        return;
+      }
+      
+      elements.emptyState.classList.add('hidden');
+      
+      elements.recordsList.innerHTML = filteredRecords.map(record => {
+        const date = new Date(record.timestamp).toLocaleString('zh-TW');
+        return `
+          <div class="bg-gray-50 p-4 rounded-lg border">
+            <div class="flex justify-between items-start mb-2">
+              <div class="flex-1">
+                <h3 class="font-medium text-gray-900">${record.utmCampaign}</h3>
+                <p class="text-sm text-gray-600">${record.websiteUrl}</p>
+                <div class="text-xs text-gray-500 mt-1">
+                  ${record.utmSource} / ${record.utmMedium} • ${date}
+                </div>
+              </div>
+              <div class="flex gap-2 ml-4 flex-wrap">
+                <button onclick="copyRecord('${record.finalUrl}')" class="text-blue-600 hover:text-blue-800 text-xs">
+                  📋 複製連結
+                </button>
+                ${record.shortUrl ? 
+                  `<button onclick="copyRecord('${record.shortUrl}')" class="text-green-600 hover:text-green-800 text-xs">
+                    ✨ 複製短網址
+                  </button>` : 
+                  `<button onclick="createShortUrlForRecord('${record.timestamp}')" class="text-purple-600 hover:text-purple-800 text-xs">
+                    ✨ 產生短網址
+                  </button>`
+                }
+                <button onclick="syncSingleRecord('${record.timestamp}')" class="text-green-600 hover:text-green-800 text-xs">
+                  🔄 同步
+                </button>
+                <button onclick="deleteRecord('${record.timestamp}')" class="text-red-600 hover:text-red-800 text-xs">
+                  🗑️ 刪除
+                </button>
+              </div>
+            </div>
+            <div class="bg-white p-2 rounded text-xs">
+              <div class="mb-1 text-gray-700 break-all">🔗 ${record.finalUrl}</div>
+              <div id="shortUrl-${record.timestamp}" class="${record.shortUrl ? '' : 'hidden'} text-green-600 break-all">
+                ✨ ${record.shortUrl || ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 複製記錄
+    async function copyRecord(url) {
+      const success = await copyToClipboard(url);
+      showStatus(success ? '連結已複製！' : '複製失敗', success ? 'success' : 'error');
+    }
+
+    // 刪除記錄
+    function deleteRecord(timestamp) {
+      if (!confirm('確定要刪除這筆記錄嗎？')) return;
+      
+      allRecords = allRecords.filter(record => record.timestamp !== timestamp);
+      Storage.set('utm_records', allRecords);
+      filterRecords();
+      showStatus('記錄已刪除', 'success');
+    }
+
+    // 清空所有記錄
+    function clearAllRecords() {
+      if (!confirm('確定要清空所有記錄嗎？此操作無法復原。')) return;
+      
+      Storage.remove('utm_records');
+      allRecords = [];
+      filterRecords();
+      showStatus('所有記錄已清空', 'success');
+    }
+
+    // 事件綁定
+    document.addEventListener('DOMContentLoaded', () => {
+      // 搜尋和篩選
+      elements.searchInput.addEventListener('input', filterRecords);
+      elements.timeFilter.addEventListener('change', filterRecords);
+      elements.clearAll.addEventListener('click', clearAllRecords);
+      document.getElementById('syncRecords').addEventListener('click', syncToGoogleSheet);
+      document.getElementById('syncSettings').addEventListener('click', showSyncSettings);
+      
+      // 載入記錄
+      loadRecords();
+    });
+
+    // 同步功能
+    async function syncToGoogleSheet() {
+      if (!syncManager.checkConfig()) {
+        showStatus('請先設定 Google Apps Script URL', 'error');
+        showSyncSettings();
+        return;
+      }
+
+      if (filteredRecords.length === 0) {
+        showStatus('沒有記錄可同步', 'error');
+        return;
+      }
+
+      const confirmMsg = `確定要同步 ${filteredRecords.length} 筆記錄到 Google Sheet 嗎？`;
+      if (!confirm(confirmMsg)) return;
+
+      const progressEl = document.getElementById('syncProgress');
+      const progressTextEl = document.getElementById('syncProgressText');
+      const progressBarEl = document.getElementById('syncProgressBar');
+      
+      progressEl.classList.remove('hidden');
+      
+      try {
+        const result = await syncManager.syncMultipleRecords(filteredRecords, (progress) => {
+          const percentage = Math.round((progress.current / progress.total) * 100);
+          progressTextEl.textContent = `${progress.current}/${progress.total} (成功: ${progress.successCount}, 失敗: ${progress.errorCount})`;
+          progressBarEl.style.width = `${percentage}%`;
+        });
+        
+        progressEl.classList.add('hidden');
+        
+        if (result.errorCount === 0) {
+          showStatus(`✅ 成功同步 ${result.successCount} 筆記錄！`, 'success');
+        } else {
+          showStatus(`⚠️ 同步完成：成功 ${result.successCount} 筆，失敗 ${result.errorCount} 筆`, 'warning');
+          
+          // 顯示詳細錯誤訊息
+          const errorDetails = result.results
+            .filter(r => !r.success)
+            .map(r => `第${r.index + 1}筆: ${r.error}`)
+            .join('\n');
+          
+          if (errorDetails && confirm('是否查看詳細錯誤訊息？')) {
+            alert(`同步失敗詳情：\n\n${errorDetails}`);
+          }
+        }
+      } catch (error) {
+        progressEl.classList.add('hidden');
+        showStatus(`❌ 同步失敗：${error.message}`, 'error');
+      }
+    }
+
+    function showSyncSettings() {
+      const currentUrl = syncManager.apiUrl;
+      const newUrl = prompt('請輸入你的 Google Apps Script Web App URL：\n\n格式範例：\nhttps://script.google.com/macros/s/YOUR_SCRIPT_ID/exec', currentUrl);
+      
+      if (newUrl !== null) {
+        if (newUrl.trim()) {
+          syncManager.setApiUrl(newUrl.trim());
+          showStatus('Apps Script URL 已設定！', 'success');
+          testSyncConnection();
+        } else {
+          syncManager.setApiUrl('');
+          showStatus('Apps Script URL 已清除', 'info');
+        }
+      }
+    }
+
+    async function testSyncConnection() {
+      try {
+        showStatus('正在測試連線...', 'info');
+        await syncManager.testConnection();
+        showStatus('✅ Google Sheet 連線正常！', 'success');
+      } catch (error) {
+        showStatus(`❌ 連線測試失敗：${error.message}`, 'error');
+      }
+    }
+
+    // 單筆同步測試
+    async function syncSingleRecord(timestamp) {
+      const record = allRecords.find(r => r.timestamp === timestamp);
+      if (!record) {
+        showStatus('找不到記錄', 'error');
+        return;
+      }
+      
+      if (!syncManager.checkConfig()) {
+        showStatus('請先設定 Google Apps Script URL', 'error');
+        showSyncSettings();
+        return;
+      }
+      
+      try {
+        showStatus('正在同步單筆記錄...', 'info');
+        await syncManager.syncRecord(record);
+        showStatus('✅ 單筆記錄同步成功！', 'success');
+      } catch (error) {
+        showStatus(`❌ 單筆同步失敗: ${error.message}`, 'error');
+        console.error('單筆同步錯誤:', error);
+      }
+    }
+
+    // 表單測試同步
+    async function testFormSync(timestamp) {
+      const record = allRecords.find(r => r.timestamp === timestamp);
+      if (!record) {
+        showStatus('找不到記錄', 'error');
+        return;
+      }
+      
+      if (!syncManager.checkConfig()) {
+        showStatus('請先設定 Google Apps Script URL', 'error');
+        return;
+      }
+      
+      try {
+        showStatus('正在使用表單方式同步...', 'info');
+        await syncManager.syncWithForm(record);
+        showStatus('✅ 表單同步完成！請檢查 Google Sheet', 'success');
+      } catch (error) {
+        showStatus(`❌ 表單同步失敗: ${error.message}`, 'error');
+      }
+    }
+
+    // 為單筆記錄產生短網址
+    async function createShortUrlForRecord(timestamp) {
+      const record = allRecords.find(r => r.timestamp === timestamp);
+      if (!record) {
+        showStatus('找不到記錄', 'error');
+        return;
+      }
+      
+      if (record.shortUrl) {
+        showStatus('這筆記錄已有短網址', 'info');
+        return;
+      }
+      
+      try {
+        showStatus('正在產生短網址...', 'info');
+        
+        const options = {
+          title: `UTM: ${record.utmCampaign || '行銷活動'}`,
+          description: `來源: ${record.utmSource} | 媒介: ${record.utmMedium}`
+        };
+        
+        const result = await urlShortener.createShortUrl(record.finalUrl, options);
+        
+        // 更新記錄
+        record.shortUrl = result.shortUrl;
+        Storage.set('utm_records', allRecords);
+        
+        // 更新顯示
+        const shortUrlEl = document.getElementById(`shortUrl-${timestamp}`);
+        if (shortUrlEl) {
+          shortUrlEl.innerHTML = `✨ ${result.shortUrl}`;
+          shortUrlEl.classList.remove('hidden');
+        }
+        
+        // 重新渲染列表以更新按鈕
+        renderRecords();
+        
+        showStatus('✅ 短網址已產生！', 'success');
+        
+        // 同步到Google Sheet
+        if (syncManager.checkConfig()) {
+          const shouldSync = confirm('短網址已產生。\n\n是否要同步更新到 Google Sheet？');
+          if (shouldSync) {
+            try {
+              await syncManager.syncRecord(record);
+              showStatus('✅ 已同步更新到 Google Sheet！', 'success');
+            } catch (error) {
+              showStatus(`同步失敗: ${error.message}`, 'warning');
+            }
+          }
+        }
+        
+      } catch (error) {
+        showStatus(`縮網址失敗: ${error.message}`, 'error');
+      }
+    }
+
+    // 全域函數（供 HTML 中的 onclick 使用）
+    window.copyRecord = copyRecord;
+    window.deleteRecord = deleteRecord;
+    window.syncSingleRecord = syncSingleRecord;
+    window.testFormSync = testFormSync;
+    window.createShortUrlForRecord = createShortUrlForRecord;
+  </script>
+
+  <style>
+    .status-success { @apply text-green-600; }
+    .status-error { @apply text-red-600; }
+    .status-info { @apply text-blue-600; }
+    .status-warning { @apply text-orange-600; }
+  </style>
+</body>
+</html>

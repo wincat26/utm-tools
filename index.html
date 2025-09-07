@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UTM Manager - 連結產生器</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="shared/styles.css">
+</head>
+<body>
+  <!-- 導航列 -->
+  <nav class="nav-container">
+    <div class="text-xl font-bold">UTM Manager</div>
+    <div class="nav-tabs">
+      <a href="index.html" class="nav-tab">🔗 產生器</a>
+      <a href="history.html" class="nav-tab">📋 我的連結</a>
+      <a href="templates.html" class="nav-tab">📝 常用範本</a>
+    </div>
+  </nav>
+
+  <!-- 主要內容 -->
+  <div class="main-container">
+    <div class="page-card">
+      <h1 class="text-2xl font-bold mb-6 text-center">UTM 連結產生器</h1>
+      
+      <!-- 快速範本按鈕 -->
+      <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+        <h3 class="text-sm font-medium mb-3 text-gray-700">快速套用常用範本</h3>
+        <div class="flex flex-wrap gap-2">
+          <button class="template-btn" data-template="google_ads">Google Ads</button>
+          <button class="template-btn" data-template="facebook">Facebook</button>
+          <button class="template-btn" data-template="instagram">Instagram</button>
+          <button class="template-btn" data-template="edm">EDM</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- 左側：參數設定 -->
+        <div class="space-y-4">
+          <h2 class="text-lg font-semibold">參數設定</h2>
+          
+          <div>
+            <label class="block text-sm font-medium mb-1">網站網址 <span class="text-red-500">*</span></label>
+            <input type="url" id="websiteUrl" placeholder="https://example.com" class="form-input">
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">utm_source</label>
+              <input type="text" id="utmSource" placeholder="google" class="form-input">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">utm_medium</label>
+              <input type="text" id="utmMedium" placeholder="cpc" class="form-input">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">utm_campaign <span class="text-red-500">*</span></label>
+            <input type="text" id="utmCampaign" placeholder="summer_sale_2024" class="form-input">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">utm_term</label>
+            <input type="text" id="utmTerm" placeholder="關鍵字或日期" class="form-input">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">utm_content</label>
+            <input type="text" id="utmContent" placeholder="廣告素材名稱" class="form-input">
+          </div>
+
+          <!-- AI 生成區塊 -->
+          <div class="border-t pt-4">
+            <div class="flex justify-between items-center mb-2">
+              <h3 class="text-sm font-medium">🤖 AI 智慧助手</h3>
+              <div class="flex gap-2">
+                <a href="ai-setup.html" class="text-xs text-blue-500 hover:text-blue-700">📚 說明</a>
+                <button id="aiSettings" class="text-xs text-gray-500 hover:text-gray-700">⚙️ 設定</button>
+              </div>
+            </div>
+            <textarea id="aiPrompt" rows="2" placeholder="描述你的需求，例如：Google Ads 夏季特賣活動" class="form-input mb-2"></textarea>
+            <div class="flex gap-2">
+              <button id="aiGenerate" class="btn-primary flex-1">生成 UTM</button>
+              <button id="aiAsk" class="btn-secondary flex-1">問問題</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右側：結果預覽 -->
+        <div class="space-y-4">
+          <h2 class="text-lg font-semibold">產出結果</h2>
+          
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <label class="block text-sm font-medium mb-2">生成連結預覽</label>
+            <div id="resultBox" class="bg-white p-3 rounded border text-sm break-all min-h-[4rem] flex items-center">
+              連結將在此處顯示...
+            </div>
+          </div>
+
+          <div class="flex gap-3">
+            <button id="copyButton" class="btn-primary flex-1">📋 複製連結</button>
+            <button id="saveButton" class="btn-secondary flex-1">💾 儲存記錄</button>
+          </div>
+          
+
+
+          <!-- 錯誤診斷 -->
+          <div id="diagnostics" class="hidden">
+            <h3 class="text-sm font-medium mb-2 text-orange-600">⚠️ 建議修正</h3>
+            <div id="diagnosticsList" class="space-y-2"></div>
+          </div>
+
+          <div id="statusMessage" class="text-center text-sm"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="shared/utils.js"></script>
+  <script src="shared/ai-helper.js"></script>
+  <script src="shared/sync-api.js"></script>
+  <script src="shared/url-shortener.js"></script>
+  <script>
+    // 範本資料
+    const templates = {
+      google_ads: { source: 'google', medium: 'cpc' },
+      facebook: { source: 'facebook', medium: 'paid_social' },
+      instagram: { source: 'instagram', medium: 'paid_social' },
+      edm: { source: 'newsletter', medium: 'email' }
+    };
+
+    // DOM 元素
+    const elements = {
+      websiteUrl: document.getElementById('websiteUrl'),
+      utmSource: document.getElementById('utmSource'),
+      utmMedium: document.getElementById('utmMedium'),
+      utmCampaign: document.getElementById('utmCampaign'),
+      utmTerm: document.getElementById('utmTerm'),
+      utmContent: document.getElementById('utmContent'),
+      resultBox: document.getElementById('resultBox'),
+      copyButton: document.getElementById('copyButton'),
+      saveButton: document.getElementById('saveButton'),
+      aiPrompt: document.getElementById('aiPrompt'),
+      aiButton: document.getElementById('aiButton')
+    };
+
+    // 更新UTM連結預覽
+    function updatePreview() {
+      const websiteUrl = elements.websiteUrl.value.trim();
+      const utmCampaign = elements.utmCampaign.value.trim();
+      
+      if (!websiteUrl || !utmCampaign) {
+        elements.resultBox.textContent = '請填寫網站網址和活動名稱';
+        return;
+      }
+
+      const params = {
+        utm_source: elements.utmSource.value.trim(),
+        utm_medium: elements.utmMedium.value.trim(),
+        utm_campaign: utmCampaign,
+        utm_term: elements.utmTerm.value.trim(),
+        utm_content: elements.utmContent.value.trim()
+      };
+
+      const finalUrl = buildUtmUrl(websiteUrl, params);
+      elements.resultBox.textContent = finalUrl || '網址格式錯誤';
+      
+      // 同時執行診斷
+      runDiagnostics();
+    }
+
+    // 套用範本
+    function applyTemplate(templateKey) {
+      const template = templates[templateKey];
+      if (template) {
+        elements.utmSource.value = template.source;
+        elements.utmMedium.value = template.medium;
+        updatePreview();
+        showStatus(`已套用 ${templateKey} 範本`, 'success');
+      }
+    }
+
+    // 複製連結
+    async function copyLink() {
+      const link = elements.resultBox.textContent;
+      if (!link || link.includes('請填寫') || link.includes('錯誤')) {
+        showStatus('沒有可複製的連結', 'error');
+        return;
+      }
+      
+      const success = await copyToClipboard(link);
+      showStatus(success ? '連結已複製！' : '複製失敗', success ? 'success' : 'error');
+    }
+
+    // 儲存記錄
+    async function saveRecord() {
+      const link = elements.resultBox.textContent;
+      if (!link || link.includes('請填寫') || link.includes('錯誤')) {
+        showStatus('請先產生有效連結', 'error');
+        return;
+      }
+
+      const record = {
+        timestamp: new Date().toISOString(),
+        websiteUrl: elements.websiteUrl.value.trim(),
+        utmSource: elements.utmSource.value.trim(),
+        utmMedium: elements.utmMedium.value.trim(),
+        utmCampaign: elements.utmCampaign.value.trim(),
+        utmTerm: elements.utmTerm.value.trim(),
+        utmContent: elements.utmContent.value.trim(),
+        finalUrl: link,
+        shortUrl: '' // 在歷史記錄中產生
+      };
+
+      // 儲存到本地
+      const records = Storage.get('utm_records') || [];
+      records.unshift(record);
+      Storage.set('utm_records', records.slice(0, 100)); // 只保留最近100筆
+
+      showStatus('記錄已儲存！', 'success');
+
+      // 如果有設定同步，問是否要同步到 Google Sheet
+      if (syncManager.checkConfig()) {
+        const shouldSync = confirm('記錄已儲存到本地。\n\n是否要同步到 Google Sheet？');
+        if (shouldSync) {
+          try {
+            showStatus('正在同步到 Google Sheet...', 'info');
+            await syncManager.syncRecord(record);
+            showStatus('✅ 記錄已儲存並同步到 Google Sheet！', 'success');
+          } catch (error) {
+            showStatus(`⚠️ 本地儲存成功，但同步失敗：${error.message}`, 'warning');
+          }
+        }
+      }
+    }
+
+    // 從 URL 參數載入範本
+    function loadFromUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('source')) {
+        elements.utmSource.value = params.get('source');
+      }
+      if (params.get('medium')) {
+        elements.utmMedium.value = params.get('medium');
+      }
+      if (params.get('campaign')) {
+        elements.utmCampaign.value = params.get('campaign');
+      }
+      updatePreview();
+    }
+
+    // AI 功能
+    async function generateWithAI() {
+      const prompt = elements.aiPrompt.value.trim();
+      const websiteUrl = elements.websiteUrl.value.trim();
+      
+      if (!prompt) {
+        showStatus('請描述你的UTM需求', 'error');
+        return;
+      }
+      
+      try {
+        showStatus('正在生成UTM參數...', 'info');
+        const utmData = await aiHelper.generateUTM(prompt, websiteUrl);
+        
+        // 填入生成的參數
+        if (utmData.utm_source) elements.utmSource.value = utmData.utm_source;
+        if (utmData.utm_medium) elements.utmMedium.value = utmData.utm_medium;
+        if (utmData.utm_campaign) elements.utmCampaign.value = utmData.utm_campaign;
+        if (utmData.utm_term) elements.utmTerm.value = utmData.utm_term;
+        if (utmData.utm_content) elements.utmContent.value = utmData.utm_content;
+        
+        updatePreview();
+        showStatus('AI已成功生成UTM參數！', 'success');
+      } catch (error) {
+        showStatus(error.message, 'error');
+        if (error.message.includes('API Key')) {
+          showAISettings();
+        }
+      }
+    }
+    
+    async function askAI() {
+      const question = elements.aiPrompt.value.trim();
+      
+      if (!question) {
+        showStatus('請輸入你的問題', 'error');
+        return;
+      }
+      
+      try {
+        showStatus('正在請教AI...', 'info');
+        
+        const context = {
+          websiteUrl: elements.websiteUrl.value.trim(),
+          utmParams: {
+            utm_source: elements.utmSource.value.trim(),
+            utm_medium: elements.utmMedium.value.trim(),
+            utm_campaign: elements.utmCampaign.value.trim(),
+            utm_term: elements.utmTerm.value.trim(),
+            utm_content: elements.utmContent.value.trim()
+          }
+        };
+        
+        const answer = await aiHelper.askQuestion(question, context);
+        
+        // 顯示AI回答
+        alert(`AI回答：\n\n${answer}`);
+        showStatus('AI已回答你的問題', 'success');
+      } catch (error) {
+        showStatus(error.message, 'error');
+        if (error.message.includes('API Key')) {
+          showAISettings();
+        }
+      }
+    }
+    
+    function showAISettings() {
+      const currentKey = aiHelper.apiKey;
+      const newKey = prompt('請輸入你的 Gemini API Key：\n\n如何取得：\n1. 前往 https://aistudio.google.com/app/apikey\n2. 點擊 "Create API Key"\n3. 複製並貼上你的 API Key', currentKey);
+      
+      if (newKey !== null) {
+        if (newKey.trim()) {
+          aiHelper.setApiKey(newKey.trim());
+          showStatus('API Key已設定！', 'success');
+        } else {
+          aiHelper.setApiKey('');
+          showStatus('API Key已清除', 'info');
+        }
+      }
+    }
+    
+
+
+    function runDiagnostics() {
+      const websiteUrl = elements.websiteUrl.value.trim();
+      const utmParams = {
+        utm_source: elements.utmSource.value.trim(),
+        utm_medium: elements.utmMedium.value.trim(),
+        utm_campaign: elements.utmCampaign.value.trim(),
+        utm_term: elements.utmTerm.value.trim(),
+        utm_content: elements.utmContent.value.trim()
+      };
+      
+      const issues = aiHelper.diagnoseError(websiteUrl, utmParams);
+      const diagnosticsEl = document.getElementById('diagnostics');
+      const diagnosticsListEl = document.getElementById('diagnosticsList');
+      
+      if (issues.length === 0) {
+        diagnosticsEl.classList.add('hidden');
+        return;
+      }
+      
+      diagnosticsEl.classList.remove('hidden');
+      diagnosticsListEl.innerHTML = issues.map(issue => {
+        const iconMap = { error: '❌', warning: '⚠️', info: 'ℹ️' };
+        const colorMap = { error: 'text-red-600', warning: 'text-orange-600', info: 'text-blue-600' };
+        
+        return `
+          <div class="text-xs ${colorMap[issue.type]} bg-gray-50 p-2 rounded">
+            <div class="font-medium">${iconMap[issue.type]} ${issue.message}</div>
+            <div class="text-gray-600 mt-1">建議：${issue.solution}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 事件綁定
+    document.addEventListener('DOMContentLoaded', () => {
+      // 載入 URL 參數
+      loadFromUrlParams();
+      
+      // 輸入事件
+      Object.values(elements).forEach(el => {
+        if (el && el.addEventListener) {
+          el.addEventListener('input', updatePreview);
+        }
+      });
+
+      // 範本按鈕
+      document.querySelectorAll('.template-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          applyTemplate(btn.dataset.template);
+        });
+      });
+
+      // 功能按鈕
+      elements.copyButton.addEventListener('click', copyLink);
+      elements.saveButton.addEventListener('click', saveRecord);
+
+      // AI 功能
+      document.getElementById('aiGenerate').addEventListener('click', generateWithAI);
+      document.getElementById('aiAsk').addEventListener('click', askAI);
+      document.getElementById('aiSettings').addEventListener('click', showAISettings);
+      
+
+
+      // 初始預覽和診斷
+      updatePreview();
+      runDiagnostics();
+    });
+  </script>
+
+  <style>
+    .template-btn {
+      @apply px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors cursor-pointer;
+    }
+    
+    .status-message {
+      transition: all 0.3s;
+    }
+    
+    .status-success { @apply text-green-600; }
+    .status-error { @apply text-red-600; }
+    .status-info { @apply text-blue-600; }
+    .status-warning { @apply text-orange-600; }
+  </style>
+</body>
+</html>

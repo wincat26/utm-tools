@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UTM Manager - 常用範本</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="shared/styles.css">
+</head>
+<body>
+  <!-- 導航列 -->
+  <nav class="nav-container">
+    <div class="text-xl font-bold">UTM Manager</div>
+    <div class="nav-tabs">
+      <a href="index.html" class="nav-tab">🔗 產生器</a>
+      <a href="history.html" class="nav-tab">📋 我的連結</a>
+      <a href="templates.html" class="nav-tab">📝 常用範本</a>
+    </div>
+  </nav>
+
+  <!-- 主要內容 -->
+  <div class="main-container">
+    <div class="page-card">
+      <h1 class="text-2xl font-bold mb-6">常用範本</h1>
+      
+      <!-- 系統預設範本 -->
+      <div class="mb-8">
+        <h2 class="text-lg font-semibold mb-4">📋 系統預設範本</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="systemTemplates">
+          <!-- 系統範本將在這裡動態生成 -->
+        </div>
+      </div>
+
+      <!-- 個人收藏範本 -->
+      <div class="mb-8">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-semibold">⭐ 我的收藏範本</h2>
+          <button id="addTemplate" class="btn-primary text-sm">+ 新增範本</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="userTemplates">
+          <!-- 用戶範本將在這裡動態生成 -->
+        </div>
+        <div id="noUserTemplates" class="text-center py-8 text-gray-500 hidden">
+          <div class="text-3xl mb-2">📝</div>
+          <p>還沒有收藏的範本</p>
+          <p class="text-sm mt-1">點擊上方「新增範本」來建立你的第一個範本</p>
+        </div>
+      </div>
+
+      <div id="statusMessage" class="text-center text-sm"></div>
+    </div>
+  </div>
+
+  <!-- 範本編輯彈窗 -->
+  <div id="templateModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md">
+      <h3 id="modalTitle" class="text-lg font-semibold mb-4">新增範本</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">範本名稱</label>
+          <input type="text" id="templateName" placeholder="例如：Facebook 品牌活動" class="form-input">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">utm_source</label>
+            <input type="text" id="templateSource" placeholder="facebook" class="form-input">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">utm_medium</label>
+            <input type="text" id="templateMedium" placeholder="paid_social" class="form-input">
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">utm_campaign（可選）</label>
+          <input type="text" id="templateCampaign" placeholder="預設活動名稱" class="form-input">
+        </div>
+      </div>
+      <div class="flex gap-3 mt-6">
+        <button id="saveTemplate" class="btn-primary flex-1">儲存</button>
+        <button id="cancelTemplate" class="btn-secondary flex-1">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="shared/utils.js"></script>
+  <script>
+    // 系統預設範本
+    const systemTemplates = [
+      {
+        name: 'Google Ads',
+        source: 'google',
+        medium: 'cpc',
+        description: '適用於 Google 搜尋廣告'
+      },
+      {
+        name: 'Facebook Ads',
+        source: 'facebook',
+        medium: 'paid_social',
+        description: '適用於 Facebook 付費廣告'
+      },
+      {
+        name: 'Instagram Ads',
+        source: 'instagram',
+        medium: 'paid_social',
+        description: '適用於 Instagram 付費廣告'
+      },
+      {
+        name: 'TikTok Ads',
+        source: 'tiktok',
+        medium: 'paid_social',
+        description: '適用於 TikTok 廣告投放'
+      },
+      {
+        name: 'EDM Newsletter',
+        source: 'newsletter',
+        medium: 'email',
+        description: '適用於電子報和 EDM'
+      },
+      {
+        name: 'LINE 官方帳號',
+        source: 'line_oa',
+        medium: 'im',
+        description: '適用於 LINE 官方帳號推播'
+      }
+    ];
+
+    // DOM 元素
+    const elements = {
+      systemTemplates: document.getElementById('systemTemplates'),
+      userTemplates: document.getElementById('userTemplates'),
+      noUserTemplates: document.getElementById('noUserTemplates'),
+      addTemplate: document.getElementById('addTemplate'),
+      templateModal: document.getElementById('templateModal'),
+      templateName: document.getElementById('templateName'),
+      templateSource: document.getElementById('templateSource'),
+      templateMedium: document.getElementById('templateMedium'),
+      templateCampaign: document.getElementById('templateCampaign'),
+      saveTemplate: document.getElementById('saveTemplate'),
+      cancelTemplate: document.getElementById('cancelTemplate')
+    };
+
+    // 渲染系統範本
+    function renderSystemTemplates() {
+      elements.systemTemplates.innerHTML = systemTemplates.map(template => `
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div class="flex justify-between items-start mb-2">
+            <h3 class="font-medium text-blue-900">${template.name}</h3>
+            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">系統</span>
+          </div>
+          <div class="text-sm text-blue-700 mb-3">
+            <div>Source: ${template.source}</div>
+            <div>Medium: ${template.medium}</div>
+          </div>
+          <p class="text-xs text-blue-600 mb-3">${template.description}</p>
+          <button onclick="useTemplate('${template.source}', '${template.medium}')" 
+                  class="w-full bg-blue-600 text-white py-2 px-3 rounded text-sm hover:bg-blue-700 transition-colors">
+            使用範本
+          </button>
+        </div>
+      `).join('');
+    }
+
+    // 渲染用戶範本
+    function renderUserTemplates() {
+      const userTemplates = Storage.get('user_templates') || [];
+      
+      if (userTemplates.length === 0) {
+        elements.userTemplates.innerHTML = '';
+        elements.noUserTemplates.classList.remove('hidden');
+        return;
+      }
+      
+      elements.noUserTemplates.classList.add('hidden');
+      elements.userTemplates.innerHTML = userTemplates.map((template, index) => `
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div class="flex justify-between items-start mb-2">
+            <h3 class="font-medium text-green-900">${template.name}</h3>
+            <div class="flex gap-1">
+              <button onclick="editUserTemplate(${index})" 
+                      class="text-blue-500 hover:text-blue-700 text-sm">
+                ✏️
+              </button>
+              <button onclick="deleteUserTemplate(${index})" 
+                      class="text-red-500 hover:text-red-700 text-sm">
+                🗑️
+              </button>
+            </div>
+          </div>
+          <div class="text-sm text-green-700 mb-3">
+            <div>Source: ${template.source}</div>
+            <div>Medium: ${template.medium}</div>
+            ${template.campaign ? `<div>Campaign: ${template.campaign}</div>` : ''}
+          </div>
+          <button onclick="useUserTemplate(${index})" 
+                  class="w-full bg-green-600 text-white py-2 px-3 rounded text-sm hover:bg-green-700 transition-colors">
+            使用範本
+          </button>
+        </div>
+      `).join('');
+    }
+
+    // 使用系統範本
+    function useTemplate(source, medium) {
+      const params = new URLSearchParams({
+        source: source,
+        medium: medium
+      });
+      window.location.href = `index.html?${params.toString()}`;
+    }
+
+    // 使用用戶範本
+    function useUserTemplate(index) {
+      const userTemplates = Storage.get('user_templates') || [];
+      const template = userTemplates[index];
+      if (!template) return;
+      
+      const params = new URLSearchParams({
+        source: template.source,
+        medium: template.medium
+      });
+      if (template.campaign) {
+        params.set('campaign', template.campaign);
+      }
+      window.location.href = `index.html?${params.toString()}`;
+    }
+
+    // 刪除用戶範本
+    function deleteUserTemplate(index) {
+      if (!confirm('確定要刪除這個範本嗎？')) return;
+      
+      const userTemplates = Storage.get('user_templates') || [];
+      userTemplates.splice(index, 1);
+      Storage.set('user_templates', userTemplates);
+      renderUserTemplates();
+      showStatus('範本已刪除', 'success');
+    }
+
+    let editingIndex = -1; // 編輯模式的索引
+
+    // 顯示範本彈窗（新增或編輯）
+    function showTemplateModal(isEdit = false, templateData = null, index = -1) {
+      editingIndex = index;
+      
+      if (isEdit && templateData) {
+        document.getElementById('modalTitle').textContent = '編輯範本';
+        elements.templateName.value = templateData.name;
+        elements.templateSource.value = templateData.source;
+        elements.templateMedium.value = templateData.medium;
+        elements.templateCampaign.value = templateData.campaign || '';
+      } else {
+        document.getElementById('modalTitle').textContent = '新增範本';
+        elements.templateName.value = '';
+        elements.templateSource.value = '';
+        elements.templateMedium.value = '';
+        elements.templateCampaign.value = '';
+      }
+      
+      elements.templateModal.classList.remove('hidden');
+      elements.templateModal.classList.add('flex');
+      elements.templateName.focus();
+    }
+
+    // 隱藏範本彈窗
+    function hideTemplateModal() {
+      elements.templateModal.classList.add('hidden');
+      elements.templateModal.classList.remove('flex');
+      editingIndex = -1;
+    }
+    
+    // 新增範本
+    function showAddTemplate() {
+      showTemplateModal(false);
+    }
+
+    // 儲存範本（新增或編輯）
+    function saveTemplate() {
+      const name = elements.templateName.value.trim();
+      const source = elements.templateSource.value.trim();
+      const medium = elements.templateMedium.value.trim();
+      const campaign = elements.templateCampaign.value.trim();
+      
+      if (!name || !source || !medium) {
+        showStatus('請填寫範本名稱、source 和 medium', 'error');
+        return;
+      }
+      
+      const userTemplates = Storage.get('user_templates') || [];
+      const templateData = { name, source, medium };
+      if (campaign) templateData.campaign = campaign;
+      
+      if (editingIndex >= 0) {
+        // 編輯模式
+        userTemplates[editingIndex] = templateData;
+        showStatus('範本已更新', 'success');
+      } else {
+        // 新增模式
+        if (userTemplates.length >= 5) {
+          showStatus('最多只能儲存 5 個個人範本', 'error');
+          return;
+        }
+        userTemplates.push(templateData);
+        showStatus('範本已儲存', 'success');
+      }
+      
+      Storage.set('user_templates', userTemplates);
+      hideTemplateModal();
+      renderUserTemplates();
+    }
+    
+    // 編輯範本
+    function editUserTemplate(index) {
+      const userTemplates = Storage.get('user_templates') || [];
+      const template = userTemplates[index];
+      if (!template) return;
+      
+      showTemplateModal(true, template, index);
+    }
+
+    // 事件綁定
+    document.addEventListener('DOMContentLoaded', () => {
+      // 渲染範本
+      renderSystemTemplates();
+      renderUserTemplates();
+      
+      // 按鈕事件
+      elements.addTemplate.addEventListener('click', showAddTemplate);
+      elements.cancelTemplate.addEventListener('click', hideTemplateModal);
+      elements.saveTemplate.addEventListener('click', saveTemplate);
+      
+      // 彈窗背景點擊關閉
+      elements.templateModal.addEventListener('click', (e) => {
+        if (e.target === elements.templateModal) {
+          hideTemplateModal();
+        }
+      });
+      
+      // Enter 鍵儲存
+      elements.templateModal.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          saveTemplate();
+        }
+      });
+    });
+
+    // 全域函數
+    window.useTemplate = useTemplate;
+    window.useUserTemplate = useUserTemplate;
+    window.editUserTemplate = editUserTemplate;
+    window.deleteUserTemplate = deleteUserTemplate;
+  </script>
+
+  <style>
+    .status-success { @apply text-green-600; }
+    .status-error { @apply text-red-600; }
+    .status-info { @apply text-blue-600; }
+  </style>
+</body>
+</html>
