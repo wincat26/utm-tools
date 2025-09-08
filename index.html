@@ -671,7 +671,14 @@
         }
         console.log('✅ 已載入安全配置');
       } else {
-        console.log('⚠️ 未找到安全配置，請手動設定 API Key');
+        // Fallback: 如果沒有安全配置，使用預設值（臨時）
+        if (!Storage.get('gemini_api_key')) {
+          Storage.set('gemini_api_key', 'AIzaSyBVep_ohPIfsljmqljiNrL8EN03J3PMSMw');
+        }
+        if (!Storage.get('sync_api_url')) {
+          Storage.set('sync_api_url', 'https://script.google.com/macros/s/AKfycbxmXzmwyGQhnnR2k3XsYIfSYV-601e8keq9qftoG8mi9hZnEIIOpqMPYY1RO5x6B33p-g/exec');
+        }
+        console.log('⚠️ 使用 Fallback 配置，建議設定 GitHub Secrets');
       }
     }
 
