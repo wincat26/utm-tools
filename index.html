@@ -74,7 +74,8 @@
           <div class="border-t pt-4">
             <div class="flex justify-between items-center mb-2">
               <h3 class="text-sm font-medium">🤖 AI 智慧助手</h3>
-              <div class="flex gap-2">
+              <div class="flex gap-2 items-center">
+                <div id="aiStatus" class="text-xs"></div>
                 <a href="ai-setup.html" class="text-xs text-blue-500 hover:text-blue-700">📚 說明</a>
                 <button id="aiSettings" class="text-xs text-gray-500 hover:text-gray-700">⚙️ 設定</button>
               </div>
@@ -317,17 +318,47 @@
     }
     
     function showAISettings() {
-      const currentKey = aiHelper.apiKey;
-      const newKey = prompt('請輸入你的 Gemini API Key：\n\n如何取得：\n1. 前往 https://aistudio.google.com/app/apikey\n2. 點擊 "Create API Key"\n3. 複製並貼上你的 API Key', currentKey);
+      const hasKey = aiHelper.checkApiKey();
       
-      if (newKey !== null) {
-        if (newKey.trim()) {
-          aiHelper.setApiKey(newKey.trim());
-          showStatus('API Key已設定！', 'success');
+      if (hasKey) {
+        const action = confirm('目前已設定 Gemini API Key\n\n點擊「確定」更換 API Key\n點擊「取消」移除 API Key');
+        
+        if (action) {
+          // 更換 API Key
+          const newKey = prompt('請輸入新的 Gemini API Key：', '');
+          if (newKey && newKey.trim()) {
+            aiHelper.setApiKey(newKey.trim());
+            updateAIStatus();
+            showStatus('API Key 已更新！', 'success');
+          }
         } else {
-          aiHelper.setApiKey('');
-          showStatus('API Key已清除', 'info');
+          // 移除 API Key
+          if (confirm('確定要移除 API Key 嗎？')) {
+            aiHelper.setApiKey('');
+            updateAIStatus();
+            showStatus('API Key 已移除', 'info');
+          }
         }
+      } else {
+        // 新增 API Key
+        const newKey = prompt('請輸入你的 Gemini API Key：\n\n如何取得：\n1. 前往 https://aistudio.google.com/app/apikey\n2. 點擊 "Create API Key"\n3. 複製並貼上你的 API Key');
+        
+        if (newKey && newKey.trim()) {
+          aiHelper.setApiKey(newKey.trim());
+          updateAIStatus();
+          showStatus('API Key 已設定！', 'success');
+        }
+      }
+    }
+    
+    function updateAIStatus() {
+      const statusEl = document.getElementById('aiStatus');
+      const hasKey = aiHelper.checkApiKey();
+      
+      if (hasKey) {
+        statusEl.innerHTML = '<span class="text-green-600">✓ 已設定</span>';
+      } else {
+        statusEl.innerHTML = '<span class="text-gray-400">未設定</span>';
       }
     }
     
@@ -399,6 +430,7 @@
       // 初始預覽和診斷
       updatePreview();
       runDiagnostics();
+      updateAIStatus();
     });
   </script>
 

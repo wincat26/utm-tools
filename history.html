@@ -38,7 +38,8 @@
         </div>
         <div class="flex gap-2">
           <button id="syncRecords" class="btn-primary">🔄 同步至 Google Sheet</button>
-          <div class="flex gap-1">
+          <div class="flex gap-1 items-center">
+            <div id="syncStatus" class="text-xs"></div>
             <button id="syncSettings" class="btn-secondary">⚙️ 設定</button>
             <a href="sync-setup.html" class="btn-secondary text-xs">📚 說明</a>
           </div>
@@ -223,6 +224,7 @@
       
       // 載入記錄
       loadRecords();
+      updateSyncStatus();
     });
 
     // 同步功能
@@ -278,18 +280,49 @@
     }
 
     function showSyncSettings() {
-      const currentUrl = syncManager.apiUrl;
-      const newUrl = prompt('請輸入你的 Google Apps Script Web App URL：\n\n格式範例：\nhttps://script.google.com/macros/s/YOUR_SCRIPT_ID/exec', currentUrl);
+      const hasUrl = syncManager.checkConfig();
       
-      if (newUrl !== null) {
-        if (newUrl.trim()) {
+      if (hasUrl) {
+        const action = confirm('目前已設定 Google Apps Script URL\n\n點擊「確定」更換 URL\n點擊「取消」移除 URL');
+        
+        if (action) {
+          // 更換 URL
+          const newUrl = prompt('請輸入新的 Google Apps Script Web App URL：\n\n格式範例：\nhttps://script.google.com/macros/s/YOUR_SCRIPT_ID/exec', syncManager.apiUrl);
+          if (newUrl && newUrl.trim()) {
+            syncManager.setApiUrl(newUrl.trim());
+            updateSyncStatus();
+            showStatus('Apps Script URL 已更新！', 'success');
+            testSyncConnection();
+          }
+        } else {
+          // 移除 URL
+          if (confirm('確定要移除 Apps Script URL 嗎？')) {
+            syncManager.setApiUrl('');
+            updateSyncStatus();
+            showStatus('Apps Script URL 已移除', 'info');
+          }
+        }
+      } else {
+        // 新增 URL
+        const newUrl = prompt('請輸入你的 Google Apps Script Web App URL：\n\n格式範例：\nhttps://script.google.com/macros/s/YOUR_SCRIPT_ID/exec');
+        
+        if (newUrl && newUrl.trim()) {
           syncManager.setApiUrl(newUrl.trim());
+          updateSyncStatus();
           showStatus('Apps Script URL 已設定！', 'success');
           testSyncConnection();
-        } else {
-          syncManager.setApiUrl('');
-          showStatus('Apps Script URL 已清除', 'info');
         }
+      }
+    }
+    
+    function updateSyncStatus() {
+      const statusEl = document.getElementById('syncStatus');
+      const hasUrl = syncManager.checkConfig();
+      
+      if (hasUrl) {
+        statusEl.innerHTML = '<span class="text-green-600">✓ 已設定</span>';
+      } else {
+        statusEl.innerHTML = '<span class="text-gray-400">未設定</span>';
       }
     }
 
