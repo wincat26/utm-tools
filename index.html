@@ -69,7 +69,7 @@
               <h2 class="text-xl font-semibold text-gray-900">設定 UTM 參數</h2>
             </div>
             
-            <div class="grid grid-cols-1 lg:grid-cols-3 lg:gap-8 gap-6" style="grid-template-columns: 2fr 2fr 1fr;">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
               <!-- 左側：基本參數 -->
               <div class="space-y-5">
@@ -127,11 +127,11 @@
                 
                 <!-- 動作按鈕 -->
                 <div class="flex flex-col gap-3 pt-6">
-                  <button id="generateButton" class="btn-base btn-primary btn-lg w-full">
+                  <button id="generateButton" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
                     <i class="fas fa-magic"></i>
                     產生連結
                   </button>
-                  <button id="clearButton" class="btn-base btn-secondary w-full">
+                  <button id="clearButton" class="w-full bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-400 transition-all flex items-center justify-center gap-2">
                     <i class="fas fa-eraser"></i>
                     清除
                   </button>
@@ -158,7 +158,7 @@
               <h2 class="text-xl font-semibold text-gray-900">預覽和管理</h2>
             </div>
             
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8" style="grid-template-columns: 2fr 1fr;">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <!-- 連結預覽 -->
               <div class="space-y-4">
                 <label class="form-label">
@@ -170,51 +170,48 @@
                 </div>
                 
                 <div class="flex gap-3">
-                  <button id="copyButton" class="btn-base btn-primary flex-1" style="background: linear-gradient(135deg, var(--success-green), #059669);">
+                  <button id="copyButton" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
                     <i class="fas fa-copy"></i>
                     複製連結
                   </button>
-                  <button id="saveButton" class="btn-base btn-secondary flex-1" style="border-color: var(--success-green-200); color: var(--success-green);">
+                  <button id="saveButton" class="flex-1 bg-white border border-green-300 text-green-700 px-6 py-4 rounded-xl font-medium hover:bg-green-50 hover:border-green-400 transition-all flex items-center justify-center gap-2">
                     <i class="fas fa-save"></i>
                     儲存記錄
                   </button>
                 </div>
               </div>
               
-              <!-- 狀態和設定 -->
-              <div class="space-y-4">
-                <!-- 功能狀態 -->
-                <div class="card">
-                  <div class="card-header">
-                    <h3 class="card-title">功能狀態</h3>
+            </div>
+            
+            <!-- 狀態和設定區域 -->
+            <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <!-- 功能狀態 -->
+              <div class="bg-white p-4 rounded-xl border border-gray-200">
+                <h3 class="text-sm font-medium text-gray-700 mb-3">功能狀態</h3>
+                <div class="space-y-2 text-sm">
+                  <div class="flex items-center justify-between">
+                    <span class="text-gray-600">AI 助手:</span>
+                    <div id="aiStatus"></div>
                   </div>
-                  <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                      <span class="text-sm text-gray-600">AI 助手:</span>
-                      <div id="aiStatus"></div>
-                    </div>
-                    <div class="flex items-center justify-between">
-                      <span class="text-sm text-gray-600">雲端同步:</span>
-                      <div id="cloudStatus"></div>
-                    </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-gray-600">雲端同步:</span>
+                    <div id="cloudStatus"></div>
                   </div>
                 </div>
-                
-                <!-- 快速設定 -->
-                <div class="card">
-                  <div class="card-header">
-                    <h3 class="card-title">快速設定</h3>
-                  </div>
-                  <div class="flex flex-col gap-2">
-                    <button id="cloudSync" class="btn-base btn-tertiary btn-sm justify-start">
-                      <i class="fas fa-cloud-upload-alt"></i>
-                      雲端同步
-                    </button>
-                    <button id="aiSettings" class="btn-base btn-tertiary btn-sm justify-start" style="color: #8b5cf6;">
-                      <i class="fas fa-key"></i>
-                      AI 設定
-                    </button>
-                  </div>
+              </div>
+              
+              <!-- 快速設定 -->
+              <div class="bg-white p-4 rounded-xl border border-gray-200">
+                <h3 class="text-sm font-medium text-gray-700 mb-3">快速設定</h3>
+                <div class="flex flex-wrap gap-2">
+                  <button id="cloudSync" class="text-sm bg-blue-100 text-blue-700 px-4 py-2 rounded-lg font-medium hover:bg-blue-200 transition-all flex items-center gap-2">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    雲端同步
+                  </button>
+                  <button id="aiSettings" class="text-sm bg-purple-100 text-purple-700 px-4 py-2 rounded-lg font-medium hover:bg-purple-200 transition-all flex items-center gap-2">
+                    <i class="fas fa-key"></i>
+                    AI 設定
+                  </button>
                 </div>
               </div>
             </div>
@@ -237,7 +234,8 @@
             <!-- 輸入區域 -->
             <div class="flex gap-3 mb-3">
               <div class="flex-1 relative">
-                <input type="text" id="aiPrompt" placeholder="描述你的需求，例如：Google Ads 夏季特賣活動" class="form-input pr-12" style="border-color: #8b5cf6;">
+                <input type="text" id="aiPrompt" placeholder="描述你的需求，例如：Google Ads 夏季特賣活動" 
+                       class="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
                 <button id="aiSend" class="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-purple-500 hover:text-purple-700 transition-colors">
                   <i class="fas fa-paper-plane"></i>
                 </button>
@@ -246,15 +244,15 @@
             
             <!-- 快速動作 -->
             <div class="flex gap-2">
-              <button id="aiGenerate" class="btn-base btn-primary btn-sm" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+              <button id="aiGenerate" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-purple-600 hover:to-purple-700 transition-all flex items-center gap-2">
                 <i class="fas fa-magic"></i>
                 生成 UTM
               </button>
-              <button id="aiAsk" class="btn-base btn-secondary btn-sm">
+              <button id="aiAsk" class="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-all flex items-center gap-2">
                 <i class="fas fa-question-circle"></i>
                 問問題
               </button>
-              <button id="aiClear" class="btn-base btn-tertiary btn-sm">
+              <button id="aiClear" class="bg-white border border-gray-200 text-gray-500 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-all">
                 <i class="fas fa-eraser"></i>
                 清除
               </button>
