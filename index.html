@@ -656,23 +656,26 @@
       }).join('');
     }
 
-    // 預設設定（臨時）
-    function initializeDefaultSettings() {
-      // 預設 Google Apps Script URL
-      if (!Storage.get('sync_api_url')) {
-        Storage.set('sync_api_url', 'https://script.google.com/macros/s/AKfycbxmXzmwyGQhnnR2k3XsYIfSYV-601e8keq9qftoG8mi9hZnEIIOpqMPYY1RO5x6B33p-g/exec');
-      }
-      
-      // 預設 Gemini API Key
-      if (!Storage.get('gemini_api_key')) {
-        Storage.set('gemini_api_key', 'AIzaSyBVep_ohPIfsljmqljiNrL8EN03J3PMSMw');
+    // 初始化安全設定
+    async function initializeSecureSettings() {
+      // 嘗試載入 GitHub Secrets 配置
+      if (window.SECURE_CONFIG) {
+        if (window.SECURE_CONFIG.GEMINI_API_KEY && !Storage.get('gemini_api_key')) {
+          Storage.set('gemini_api_key', window.SECURE_CONFIG.GEMINI_API_KEY);
+        }
+        if (window.SECURE_CONFIG.GOOGLE_APPS_SCRIPT_URL && !Storage.get('sync_api_url')) {
+          Storage.set('sync_api_url', window.SECURE_CONFIG.GOOGLE_APPS_SCRIPT_URL);
+        }
+        console.log('✅ 已載入安全配置');
+      } else {
+        console.log('⚠️ 未找到安全配置，請手動設定 API Key');
       }
     }
 
     // 事件綁定
     document.addEventListener('DOMContentLoaded', () => {
-      // 初始化預設設定
-      initializeDefaultSettings();
+      // 初始化安全設定
+      await initializeSecureSettings();
       
       // 載入 URL 參數
       loadFromUrlParams();
