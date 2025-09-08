@@ -48,12 +48,14 @@
         </div>
       
         <!-- 快速範本按鈕 -->
-        <div class="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
-          <div class="flex items-center gap-2 mb-4">
-            <i class="fas fa-bolt text-blue-600"></i>
+        <div class="mb-10 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-6 h-6 bg-blue-500 rounded-lg flex items-center justify-center">
+              <i class="fas fa-bolt text-white text-xs"></i>
+            </div>
             <h3 class="text-lg font-semibold text-gray-900">快速套用範本</h3>
           </div>
-          <div id="quickTemplates" class="flex flex-wrap gap-3">
+          <div id="quickTemplates" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
             <!-- 範本按鈕將動態生成 -->
           </div>
         </div>
@@ -61,81 +63,75 @@
         <!-- 步驟式介面 -->
         <div class="space-y-8">
           <!-- 步驟 1: 參數設定 -->
-          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-6">
-            <div class="flex items-center gap-3 mb-6">
-              <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
+          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 p-8 mb-10">
+            <div class="flex items-center gap-3 mb-8">
+              <div class="step-indicator step-indicator-1">1</div>
               <h2 class="text-xl font-semibold text-gray-900">設定 UTM 參數</h2>
             </div>
             
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 lg:gap-8 gap-6" style="grid-template-columns: 2fr 2fr 1fr;">
           
               <!-- 左側：基本參數 -->
-              <div class="space-y-4">
-                <div class="space-y-2">
-                  <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
+              <div class="space-y-5">
+                <div class="form-group">
+                  <label class="form-label form-label-required">
                     <i class="fas fa-globe text-blue-500"></i>
-                    網站網址 <span class="text-red-500">*</span>
+                    網站網址
                   </label>
-                  <input type="url" id="websiteUrl" placeholder="https://example.com" 
-                         class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                  <input type="url" id="websiteUrl" placeholder="https://example.com" class="form-input">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                  <div class="space-y-2">
-                    <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <div class="form-group">
+                    <label class="form-label">
                       <i class="fas fa-tag text-green-500"></i>
                       utm_source
                     </label>
-                    <input type="text" id="utmSource" placeholder="google" 
-                           class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    <input type="text" id="utmSource" placeholder="google" class="form-input">
                   </div>
-                  <div class="space-y-2">
-                    <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <div class="form-group">
+                    <label class="form-label">
                       <i class="fas fa-bullhorn text-orange-500"></i>
                       utm_medium
                     </label>
-                    <input type="text" id="utmMedium" placeholder="cpc" 
-                           class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    <input type="text" id="utmMedium" placeholder="cpc" class="form-input">
                   </div>
                 </div>
 
-                <div class="space-y-2">
-                  <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <div class="form-group">
+                  <label class="form-label form-label-required">
                     <i class="fas fa-rocket text-purple-500"></i>
-                    utm_campaign <span class="text-red-500">*</span>
+                    utm_campaign
                   </label>
-                  <input type="text" id="utmCampaign" placeholder="summer_sale_2024" 
-                         class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                  <input type="text" id="utmCampaign" placeholder="summer_sale_2024" class="form-input">
                 </div>
               </div>
               
               <!-- 右側：進階參數 -->
-              <div class="space-y-4">
-                <div class="space-y-2">
-                  <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
+              <div class="space-y-5">
+                <div class="form-group">
+                  <label class="form-label">
                     <i class="fas fa-search text-yellow-500"></i>
-                    utm_term <span class="text-gray-400">(可選)</span>
+                    utm_term <span class="form-label-optional">(可選)</span>
                   </label>
-                  <input type="text" id="utmTerm" placeholder="關鍵字或日期" 
-                         class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                  <input type="text" id="utmTerm" placeholder="關鍵字或日期" class="form-input">
                 </div>
 
-                <div class="space-y-2">
-                  <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <div class="form-group">
+                  <label class="form-label">
                     <i class="fas fa-image text-pink-500"></i>
-                    utm_content <span class="text-gray-400">(可選)</span>
+                    utm_content <span class="form-label-optional">(可選)</span>
                   </label>
-                  <input type="text" id="utmContent" placeholder="廣告素材名稱" 
-                         class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                  <input type="text" id="utmContent" placeholder="廣告素材名稱" class="form-input">
                 </div>
                 
                 <!-- 動作按鈕 -->
-                <div class="flex gap-3 pt-4">
-                  <button id="generateButton" class="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-xl font-medium hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2">
+                <div class="flex flex-col gap-3 pt-6">
+                  <button id="generateButton" class="btn-base btn-primary btn-lg w-full">
                     <i class="fas fa-magic"></i>
                     產生連結
                   </button>
-                  <button id="clearButton" class="bg-white border border-gray-200 text-gray-700 px-4 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
+                  <button id="clearButton" class="btn-base btn-secondary w-full">
                     <i class="fas fa-eraser"></i>
                     清除
                   </button>
@@ -144,39 +140,41 @@
             </div>
             
             <!-- 診斷訊息 -->
-            <div id="diagnostics" class="hidden mt-6 p-4 bg-orange-50 border border-orange-200 rounded-xl">
-              <div class="flex items-center gap-2 mb-3">
-                <i class="fas fa-exclamation-triangle text-orange-600"></i>
-                <h3 class="text-sm font-medium text-orange-800">建議修正</h3>
+            <div id="diagnostics" class="hidden mt-8 alert alert-error fade-in">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="diagnostic-icon">
+                  <i class="fas fa-exclamation"></i>
+                </div>
+                <h3 class="text-sm font-semibold">建議修正</h3>
               </div>
-              <div id="diagnosticsList" class="space-y-2"></div>
+              <div id="diagnosticsList" class="space-y-3"></div>
             </div>
           </div>
 
           <!-- 步驟 2: 結果預覽 -->
-          <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-100 p-6">
-            <div class="flex items-center gap-3 mb-6">
-              <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold text-sm">2</div>
+          <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-100 p-8 mb-10">
+            <div class="flex items-center gap-3 mb-8">
+              <div class="step-indicator step-indicator-2">2</div>
               <h2 class="text-xl font-semibold text-gray-900">預覽和管理</h2>
             </div>
             
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8" style="grid-template-columns: 2fr 1fr;">
               <!-- 連結預覽 -->
               <div class="space-y-4">
-                <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <label class="form-label">
                   <i class="fas fa-link text-green-500"></i>
                   生成連結預覽
                 </label>
-                <div id="resultBox" class="bg-white p-4 rounded-xl border border-gray-200 text-sm break-all min-h-[4rem] flex items-center text-gray-500">
+                <div id="resultBox" class="result-preview">
                   連結將在此處顯示...
                 </div>
                 
                 <div class="flex gap-3">
-                  <button id="copyButton" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-3 rounded-xl font-medium hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2">
+                  <button id="copyButton" class="btn-base btn-primary flex-1" style="background: linear-gradient(135deg, var(--success-green), #059669);">
                     <i class="fas fa-copy"></i>
                     複製連結
                   </button>
-                  <button id="saveButton" class="flex-1 bg-white border border-green-200 text-green-700 px-4 py-3 rounded-xl font-medium hover:bg-green-50 transition-all flex items-center justify-center gap-2">
+                  <button id="saveButton" class="btn-base btn-secondary flex-1" style="border-color: var(--success-green-200); color: var(--success-green);">
                     <i class="fas fa-save"></i>
                     儲存記錄
                   </button>
@@ -186,29 +184,33 @@
               <!-- 狀態和設定 -->
               <div class="space-y-4">
                 <!-- 功能狀態 -->
-                <div class="bg-white p-4 rounded-xl border border-gray-200">
-                  <h3 class="text-sm font-medium text-gray-700 mb-3">功能狀態</h3>
-                  <div class="space-y-2 text-sm">
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">功能狀態</h3>
+                  </div>
+                  <div class="space-y-3">
                     <div class="flex items-center justify-between">
-                      <span class="text-gray-600">AI 助手:</span>
+                      <span class="text-sm text-gray-600">AI 助手:</span>
                       <div id="aiStatus"></div>
                     </div>
                     <div class="flex items-center justify-between">
-                      <span class="text-gray-600">雲端同步:</span>
+                      <span class="text-sm text-gray-600">雲端同步:</span>
                       <div id="cloudStatus"></div>
                     </div>
                   </div>
                 </div>
                 
                 <!-- 快速設定 -->
-                <div class="bg-white p-4 rounded-xl border border-gray-200">
-                  <h3 class="text-sm font-medium text-gray-700 mb-3">快速設定</h3>
-                  <div class="flex flex-wrap gap-2">
-                    <button id="cloudSync" class="text-xs bg-blue-100 text-blue-700 px-3 py-2 rounded-lg font-medium hover:bg-blue-200 transition-all flex items-center gap-1">
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">快速設定</h3>
+                  </div>
+                  <div class="flex flex-col gap-2">
+                    <button id="cloudSync" class="btn-base btn-tertiary btn-sm justify-start">
                       <i class="fas fa-cloud-upload-alt"></i>
                       雲端同步
                     </button>
-                    <button id="aiSettings" class="text-xs bg-purple-100 text-purple-700 px-3 py-2 rounded-lg font-medium hover:bg-purple-200 transition-all flex items-center gap-1">
+                    <button id="aiSettings" class="btn-base btn-tertiary btn-sm justify-start" style="color: #8b5cf6;">
                       <i class="fas fa-key"></i>
                       AI 設定
                     </button>
@@ -219,14 +221,14 @@
           </div>
           
           <!-- 步驟 3: AI 智慧助手 -->
-          <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl border border-purple-100 p-6">
-            <div class="flex items-center gap-3 mb-6">
-              <div class="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold text-sm">3</div>
+          <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl border border-purple-100 p-8">
+            <div class="flex items-center gap-3 mb-8">
+              <div class="step-indicator step-indicator-3">3</div>
               <h2 class="text-xl font-semibold text-gray-900">AI 智慧助手</h2>
             </div>
             
             <!-- AI 對話區域 -->
-            <div id="aiChatArea" class="bg-white rounded-2xl p-4 mb-4 max-h-96 overflow-y-auto hidden border border-gray-200">
+            <div id="aiChatArea" class="card mb-4 max-h-96 overflow-y-auto hidden">
               <div id="aiMessages" class="space-y-3">
                 <!-- AI 對話訊息將在這裡顯示 -->
               </div>
@@ -235,9 +237,8 @@
             <!-- 輸入區域 -->
             <div class="flex gap-3 mb-3">
               <div class="flex-1 relative">
-                <input type="text" id="aiPrompt" placeholder="描述你的需求，例如：Google Ads 夏季特賣活動" 
-                       class="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
-                <button id="aiSend" class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-purple-500 hover:text-purple-700 transition-colors">
+                <input type="text" id="aiPrompt" placeholder="描述你的需求，例如：Google Ads 夏季特賣活動" class="form-input pr-12" style="border-color: #8b5cf6;">
+                <button id="aiSend" class="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-purple-500 hover:text-purple-700 transition-colors">
                   <i class="fas fa-paper-plane"></i>
                 </button>
               </div>
@@ -245,15 +246,15 @@
             
             <!-- 快速動作 -->
             <div class="flex gap-2">
-              <button id="aiGenerate" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-purple-600 hover:to-purple-700 transition-all flex items-center gap-2">
+              <button id="aiGenerate" class="btn-base btn-primary btn-sm" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
                 <i class="fas fa-magic"></i>
                 生成 UTM
               </button>
-              <button id="aiAsk" class="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-all flex items-center gap-2">
+              <button id="aiAsk" class="btn-base btn-secondary btn-sm">
                 <i class="fas fa-question-circle"></i>
                 問問題
               </button>
-              <button id="aiClear" class="bg-white border border-gray-200 text-gray-500 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-all">
+              <button id="aiClear" class="btn-base btn-tertiary btn-sm">
                 <i class="fas fa-eraser"></i>
                 清除
               </button>
@@ -313,6 +314,7 @@
       
       if (!websiteUrl || !utmCampaign) {
         elements.resultBox.textContent = '請填寫網站網址和活動名稱';
+        elements.resultBox.classList.remove('has-content');
         return;
       }
 
@@ -326,6 +328,12 @@
 
       const finalUrl = buildUtmUrl(websiteUrl, params);
       elements.resultBox.textContent = finalUrl || '網址格式錯誤';
+      
+      if (finalUrl && !finalUrl.includes('錯誤')) {
+        elements.resultBox.classList.add('has-content');
+      } else {
+        elements.resultBox.classList.remove('has-content');
+      }
       
       // 同時執行診斷
       runDiagnostics();
@@ -419,24 +427,22 @@
       // 渲染按鈕
       container.innerHTML = templates.map(template => {
         const typeClass = {
-          recent: 'bg-gradient-to-r from-green-100 to-emerald-100 border-green-200 text-green-800 hover:from-green-200 hover:to-emerald-200',
-          user: 'bg-gradient-to-r from-blue-100 to-indigo-100 border-blue-200 text-blue-800 hover:from-blue-200 hover:to-indigo-200',
-          system: 'bg-gradient-to-r from-gray-100 to-slate-100 border-gray-200 text-gray-700 hover:from-gray-200 hover:to-slate-200'
+          recent: 'template-button-recent',
+          user: 'template-button-user',
+          system: 'template-button-system'
         }[template.type];
         
         const typeIcon = {
-          recent: '<i class="fas fa-clock text-green-600"></i>',
-          user: '<i class="fas fa-star text-blue-600"></i>',
-          system: '<i class="fas fa-bookmark text-gray-600"></i>'
+          recent: '<i class="fas fa-clock"></i>',
+          user: '<i class="fas fa-star"></i>',
+          system: '<i class="fas fa-bookmark"></i>'
         }[template.type];
         
         return `
-          <button class="px-4 py-2 rounded-xl border font-medium transition-all ${typeClass}" 
+          <button class="template-button ${typeClass}" 
                   onclick="applyTemplate('${template.source}', '${template.medium}', '${template.campaign || ''}', '${template.displayName}')">
-            <span class="flex items-center gap-2">
-              ${typeIcon}
-              <span>${template.displayName}</span>
-            </span>
+            ${typeIcon}
+            <span>${template.displayName}</span>
           </button>
         `;
       }).join('');
@@ -616,9 +622,9 @@
       const hasKey = aiHelper.checkApiKey();
       
       if (hasKey) {
-        statusEl.innerHTML = '<span class="inline-flex items-center gap-1 text-green-600 font-medium"><i class="fas fa-check-circle"></i> 已設定</span>';
+        statusEl.innerHTML = '<span class="status-indicator status-success"><i class="fas fa-check-circle"></i> 已設定</span>';
       } else {
-        statusEl.innerHTML = '<span class="inline-flex items-center gap-1 text-red-500 font-medium"><i class="fas fa-times-circle"></i> 未設定</span>';
+        statusEl.innerHTML = '<span class="status-indicator status-error"><i class="fas fa-times-circle"></i> 未設定</span>';
       }
     }
     
@@ -627,9 +633,9 @@
       const hasConfig = firebaseStorage.getFirebaseConfig();
       
       if (hasConfig) {
-        statusEl.innerHTML = '<span class="inline-flex items-center gap-1 text-green-600 font-medium"><i class="fas fa-check-circle"></i> 已設定</span>';
+        statusEl.innerHTML = '<span class="status-indicator status-success"><i class="fas fa-check-circle"></i> 已設定</span>';
       } else {
-        statusEl.innerHTML = '<span class="inline-flex items-center gap-1 text-red-500 font-medium"><i class="fas fa-times-circle"></i> 未設定</span>';
+        statusEl.innerHTML = '<span class="status-indicator status-error"><i class="fas fa-times-circle"></i> 未設定</span>';
       }
     }
     
@@ -719,20 +725,20 @@
       
       if (!websiteUrl) {
         missingFields.push('網站網址');
-        elements.websiteUrl.classList.add('border-red-300', 'bg-red-50');
-        elements.websiteUrl.classList.remove('border-gray-200');
+        elements.websiteUrl.classList.add('form-input-error');
+        elements.websiteUrl.classList.remove('form-input');
       } else {
-        elements.websiteUrl.classList.remove('border-red-300', 'bg-red-50');
-        elements.websiteUrl.classList.add('border-gray-200');
+        elements.websiteUrl.classList.remove('form-input-error');
+        elements.websiteUrl.classList.add('form-input');
       }
       
       if (!utmCampaign) {
         missingFields.push('utm_campaign');
-        elements.utmCampaign.classList.add('border-red-300', 'bg-red-50');
-        elements.utmCampaign.classList.remove('border-gray-200');
+        elements.utmCampaign.classList.add('form-input-error');
+        elements.utmCampaign.classList.remove('form-input');
       } else {
-        elements.utmCampaign.classList.remove('border-red-300', 'bg-red-50');
-        elements.utmCampaign.classList.add('border-gray-200');
+        elements.utmCampaign.classList.remove('form-input-error');
+        elements.utmCampaign.classList.add('form-input');
       }
       
       if (missingFields.length > 0) {
@@ -782,12 +788,14 @@
       });
       
       diagnosticsListEl.innerHTML = diagnostics.map(diagnostic => `
-        <div class="text-sm text-red-700 bg-white p-3 rounded-lg border border-red-200">
-          <div class="font-medium flex items-center gap-2">
-            <span>❌</span>
+        <div class="diagnostic-item">
+          <div class="diagnostic-header">
+            <div class="diagnostic-icon">
+              <i class="fas fa-times"></i>
+            </div>
             <span>${diagnostic.message}</span>
           </div>
-          <div class="text-red-600 mt-1 ml-6">建議：${diagnostic.solution}</div>
+          <div class="diagnostic-solution">建議：${diagnostic.solution}</div>
         </div>
       `).join('');
       
@@ -890,45 +898,59 @@
   </script>
 
   <style>
-    .nav-tab-modern {
-      @apply flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all no-underline;
-      @apply text-gray-600 hover:text-gray-900 hover:bg-gray-100;
-    }
-    
-    .nav-tab-active {
-      @apply bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm;
-    }
-    
-    .nav-tab-active:hover {
-      @apply from-blue-600 to-blue-700 text-white;
-    }
-    
+    /* 狀態訊息樣式 */
     .status-message {
-      transition: all 0.3s;
+      transition: all 0.3s ease;
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-lg);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      text-align: center;
     }
     
-    .status-success { @apply text-green-600; }
-    .status-error { @apply text-red-600; }
-    .status-info { @apply text-blue-600; }
-    .status-warning { @apply text-orange-600; }
-    
-    /* 自定義滾動條 */
-    ::-webkit-scrollbar {
-      width: 6px;
+    .status-success { 
+      background: var(--success-green-100);
+      color: var(--success-green);
+      border: 1px solid var(--success-green-200);
     }
     
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-      border-radius: 3px;
+    .status-error { 
+      background: var(--error-red-100);
+      color: var(--error-red);
+      border: 1px solid var(--error-red-200);
     }
     
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 3px;
+    .status-info { 
+      background: var(--primary-blue-100);
+      color: var(--primary-blue);
+      border: 1px solid var(--primary-blue-200);
     }
     
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+    .status-warning { 
+      background: var(--warning-orange-100);
+      color: var(--warning-orange);
+      border: 1px solid var(--warning-orange-200);
+    }
+    
+    /* 動畫增強 */
+    .template-button:active {
+      transform: translateY(0) scale(0.95);
+    }
+    
+    .step-indicator:hover {
+      transform: scale(1.05);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    /* 特殊狀態 */
+    .form-input:focus {
+      animation: focusPulse 0.3s ease;
+    }
+    
+    @keyframes focusPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
     }
   </style>
 </body>
