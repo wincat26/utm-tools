@@ -94,6 +94,14 @@
             <h3 class="text-lg font-semibold text-gray-900">設定須知</h3>
           </div>
           <div class="flex flex-wrap gap-3">
+            <button id="cloudSync" class="bg-white border border-orange-200 text-orange-700 px-4 py-2 rounded-xl font-medium hover:bg-orange-50 transition-all flex items-center gap-2">
+              <i class="fas fa-cloud-upload-alt"></i>
+              雲端同步
+            </button>
+            <a href="firebase-setup.html" class="bg-white border border-red-200 text-red-700 px-4 py-2 rounded-xl font-medium hover:bg-red-50 transition-all flex items-center gap-2 no-underline">
+              <i class="fas fa-fire"></i>
+              Firebase 設定
+            </a>
             <button id="syncSettings" class="bg-white border border-blue-200 text-blue-700 px-4 py-2 rounded-xl font-medium hover:bg-blue-50 transition-all flex items-center gap-2">
               <i class="fas fa-table"></i>
               Google Sheet 設定
@@ -134,9 +142,15 @@
     </div>
   </div>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+  
   <script src="shared/utils.js"></script>
   <script src="shared/sync-api.js"></script>
   <script src="shared/url-shortener.js"></script>
+  <script src="shared/firebase-storage.js"></script>
   <script>
     let allRecords = [];
     let filteredRecords = [];
