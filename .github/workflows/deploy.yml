@@ -4,15 +4,21 @@ on:
   push:
     branches: [ main ]
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v4
     
     - name: Create secure config
       run: |
-        cat > shared/secure-config.js << EOF
+        cat > shared/secure-config.js << 'EOF'
         // 安全配置 - 由 GitHub Actions 自動生成
         window.SECURE_CONFIG = {
           GEMINI_API_KEY: '${{ secrets.GEMINI_API_KEY }}',
@@ -20,8 +26,14 @@ jobs:
         };
         EOF
     
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+    
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./
+        path: './'
+    
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
