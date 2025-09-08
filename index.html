@@ -714,20 +714,84 @@
       const websiteUrl = elements.websiteUrl.value.trim();
       const utmCampaign = elements.utmCampaign.value.trim();
       
-      if (!websiteUrl || !utmCampaign) {
-        // 顯示診斷訊息
-        runDiagnostics();
-        showStatus('請填寫必要欄位', 'error');
+      // 檢查必填欄位
+      const missingFields = [];
+      
+      if (!websiteUrl) {
+        missingFields.push('網站網址');
+        elements.websiteUrl.classList.add('border-red-300', 'bg-red-50');
+        elements.websiteUrl.classList.remove('border-gray-200');
+      } else {
+        elements.websiteUrl.classList.remove('border-red-300', 'bg-red-50');
+        elements.websiteUrl.classList.add('border-gray-200');
+      }
+      
+      if (!utmCampaign) {
+        missingFields.push('utm_campaign');
+        elements.utmCampaign.classList.add('border-red-300', 'bg-red-50');
+        elements.utmCampaign.classList.remove('border-gray-200');
+      } else {
+        elements.utmCampaign.classList.remove('border-red-300', 'bg-red-50');
+        elements.utmCampaign.classList.add('border-gray-200');
+      }
+      
+      if (missingFields.length > 0) {
+        const fieldText = missingFields.join('、');
+        showStatus(`請填寫必要欄位：${fieldText}`, 'error');
+        
+        // 顯示詳細診斷訊息
+        showDetailedDiagnostics(missingFields);
         return;
       }
       
+      // 清除錯誤樣式
+      elements.websiteUrl.classList.remove('border-red-300', 'bg-red-50');
+      elements.utmCampaign.classList.remove('border-red-300', 'bg-red-50');
+      
       updatePreview();
-      runDiagnostics();
       
       const link = elements.resultBox.textContent;
       if (link && !link.includes('請填寫') && !link.includes('錯誤')) {
+        // 隱藏診斷訊息
+        document.getElementById('diagnostics').classList.add('hidden');
         showStatus('✨ UTM 連結已產生！', 'success');
       }
+    }
+    
+    // 顯示詳細診斷訊息
+    function showDetailedDiagnostics(missingFields) {
+      const diagnosticsEl = document.getElementById('diagnostics');
+      const diagnosticsListEl = document.getElementById('diagnosticsList');
+      
+      const diagnostics = missingFields.map(field => {
+        const fieldInfo = {
+          '網站網址': {
+            message: '網站網址為必填欄位',
+            solution: '請輸入完整的網站網址，例如：https://example.com'
+          },
+          'utm_campaign': {
+            message: '活動名稱 (utm_campaign) 為必填欄位',
+            solution: '請輸入活動名稱，例如：summer_sale_2024'
+          }
+        };
+        
+        return fieldInfo[field] || {
+          message: `${field} 為必填欄位`,
+          solution: `請填寫 ${field} 欄位`
+        };
+      });
+      
+      diagnosticsListEl.innerHTML = diagnostics.map(diagnostic => `
+        <div class="text-sm text-red-700 bg-white p-3 rounded-lg border border-red-200">
+          <div class="font-medium flex items-center gap-2">
+            <span>❌</span>
+            <span>${diagnostic.message}</span>
+          </div>
+          <div class="text-red-600 mt-1 ml-6">建議：${diagnostic.solution}</div>
+        </div>
+      `).join('');
+      
+      diagnosticsEl.classList.remove('hidden');
     }
     
     // 清除表單
@@ -739,6 +803,12 @@
       elements.utmTerm.value = '';
       elements.utmContent.value = '';
       elements.resultBox.textContent = '連結將在此處顯示...';
+      
+      // 清除錯誤樣式
+      elements.websiteUrl.classList.remove('border-red-300', 'bg-red-50');
+      elements.utmCampaign.classList.remove('border-red-300', 'bg-red-50');
+      elements.websiteUrl.classList.add('border-gray-200');
+      elements.utmCampaign.classList.add('border-gray-200');
       
       // 隱藏診斷訊息
       document.getElementById('diagnostics').classList.add('hidden');
