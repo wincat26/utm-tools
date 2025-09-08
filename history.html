@@ -23,6 +23,16 @@
     <div class="page-card">
       <h1 class="text-2xl font-bold mb-6">我的連結記錄</h1>
       
+      <!-- 功能狀態顯示 -->
+      <div class="mb-4 flex justify-end">
+        <div class="flex gap-4 text-xs">
+          <div class="flex items-center gap-1">
+            <span class="text-gray-600">Google Sheet:</span>
+            <div id="syncStatus"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- 搜尋和篩選 -->
       <div class="mb-6 flex flex-col sm:flex-row gap-4">
         <div class="flex-1">
@@ -38,12 +48,16 @@
         </div>
         <div class="flex gap-2">
           <button id="syncRecords" class="btn-primary">🔄 同步至 Google Sheet</button>
-          <div class="flex gap-1 items-center">
-            <div id="syncStatus" class="text-xs"></div>
-            <button id="syncSettings" class="btn-secondary">⚙️ 設定</button>
-            <a href="sync-setup.html" class="btn-secondary text-xs">📚 說明</a>
-          </div>
           <button id="clearAll" class="btn-secondary">清空記錄</button>
+        </div>
+      </div>
+
+      <!-- 設定須知 -->
+      <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <h3 class="text-sm font-medium text-blue-900 mb-2">📋 設定須知</h3>
+        <div class="flex flex-wrap gap-2">
+          <button id="syncSettings" class="text-xs bg-white border border-blue-300 text-blue-700 px-3 py-1 rounded hover:bg-blue-100">⚙️ Google Sheet 設定</button>
+          <a href="sync-setup.html" class="text-xs bg-white border border-blue-300 text-blue-700 px-3 py-1 rounded hover:bg-blue-100 no-underline">📚 同步說明</a>
         </div>
       </div>
 
@@ -320,9 +334,9 @@
       const hasUrl = syncManager.checkConfig();
       
       if (hasUrl) {
-        statusEl.innerHTML = '<span class="text-green-600">✓ 已設定</span>';
+        statusEl.innerHTML = '<span class="text-green-600 font-medium">✓ 已設定</span>';
       } else {
-        statusEl.innerHTML = '<span class="text-gray-400">未設定</span>';
+        statusEl.innerHTML = '<span class="text-red-500 font-medium">✗ 未設定</span>';
       }
     }
 
