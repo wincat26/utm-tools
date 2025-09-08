@@ -285,8 +285,24 @@
       showStatus('所有記錄已清空', 'success');
     }
 
+    // 預設設定（臨時）
+    function initializeDefaultSettings() {
+      // 預設 Google Apps Script URL
+      if (!Storage.get('sync_api_url')) {
+        Storage.set('sync_api_url', 'https://script.google.com/macros/s/AKfycbxmXzmwyGQhnnR2k3XsYIfSYV-601e8keq9qftoG8mi9hZnEIIOpqMPYY1RO5x6B33p-g/exec');
+      }
+      
+      // 預設 Gemini API Key
+      if (!Storage.get('gemini_api_key')) {
+        Storage.set('gemini_api_key', 'AIzaSyBVep_ohPIfsljmqljiNrL8EN03J3PMSMw');
+      }
+    }
+
     // 事件綁定
     document.addEventListener('DOMContentLoaded', () => {
+      // 初始化預設設定
+      initializeDefaultSettings();
+      
       // 搜尋和篩選
       elements.searchInput.addEventListener('input', filterRecords);
       elements.timeFilter.addEventListener('change', filterRecords);
