@@ -77,6 +77,7 @@
       </div>
       <div class="flex gap-3 mt-6">
         <button id="saveTemplate" class="btn-primary flex-1">儲存</button>
+        <button id="deleteTemplate" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 hidden">刪除</button>
         <button id="cancelTemplate" class="btn-secondary flex-1">取消</button>
       </div>
     </div>
@@ -141,11 +142,16 @@
 
     // 渲染系統範本
     function renderSystemTemplates() {
-      elements.systemTemplates.innerHTML = systemTemplates.map(template => `
+      elements.systemTemplates.innerHTML = systemTemplates.map((template, index) => `
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div class="flex justify-between items-start mb-2">
             <h3 class="font-medium text-blue-900">${template.name}</h3>
-            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">系統</span>
+            <div class="flex gap-1">
+              <button onclick="editSystemTemplate(${index})" class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200">
+                ✏️ 編輯
+              </button>
+              <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">系統</span>
+            </div>
           </div>
           <div class="text-sm text-blue-700 mb-3">
             <div>Source: ${template.source}</div>
@@ -237,18 +243,30 @@
 
     let editingIndex = -1; // 編輯模式的索引
 
+    let isSystemTemplate = false; // 記錄是否為系統範本
+    
     // 顯示範本彈窗（新增或編輯）
-    function showTemplateModal(isEdit = false, templateData = null, index = -1) {
+    function showTemplateModal(isEdit = false, templateData = null, index = -1, fromSystem = false) {
       editingIndex = index;
+      isSystemTemplate = fromSystem;
+      
+      const deleteBtn = document.getElementById('deleteTemplate');
       
       if (isEdit && templateData) {
-        document.getElementById('modalTitle').textContent = '編輯範本';
+        if (fromSystem) {
+          document.getElementById('modalTitle').textContent = '編輯系統範本（將儲存為個人範本）';
+          deleteBtn.classList.add('hidden'); // 系統範本不能刪除
+        } else {
+          document.getElementById('modalTitle').textContent = '編輯範本';
+          deleteBtn.classList.remove('hidden'); // 個人範本可以刪除
+        }
         elements.templateName.value = templateData.name;
         elements.templateSource.value = templateData.source;
         elements.templateMedium.value = templateData.medium;
         elements.templateCampaign.value = templateData.campaign || '';
       } else {
         document.getElementById('modalTitle').textContent = '新增範本';
+        deleteBtn.classList.add('hidden'); // 新增模式不顯示刪除
         elements.templateName.value = '';
         elements.templateSource.value = '';
         elements.templateMedium.value = '';
@@ -271,6 +289,22 @@
     function showAddTemplate() {
       showTemplateModal(false);
     }
+    
+    // 刪除當前編輯的範本
+    function deleteCurrentTemplate() {
+      if (editingIndex >= 0 && !isSystemTemplate) {
+        const userTemplates = Storage.get('user_templates') || [];
+        const templateName = userTemplates[editingIndex]?.name || '範本';
+        
+        if (confirm(`確定要刪除「${templateName}」嗎？`)) {
+          userTemplates.splice(editingIndex, 1);
+          Storage.set('user_templates', userTemplates);
+          hideTemplateModal();
+          renderUserTemplates();
+          showStatus('範本已刪除', 'success');
+        }
+      }
+    }
 
     // 儲存範本（新增或編輯）
     function saveTemplate() {
@@ -288,14 +322,22 @@
       const templateData = { name, source, medium };
       if (campaign) templateData.campaign = campaign;
       
-      if (editingIndex >= 0) {
-        // 編輯模式
+      if (isSystemTemplate) {
+        // 系統範本編輯：儲存為新的個人範本
+        if (userTemplates.length >= 10) {
+          showStatus('最多只能儲存 10 個個人範本', 'error');
+          return;
+        }
+        userTemplates.push(templateData);
+        showStatus('系統範本已儲存為個人範本！', 'success');
+      } else if (editingIndex >= 0) {
+        // 編輯個人範本
         userTemplates[editingIndex] = templateData;
         showStatus('範本已更新', 'success');
       } else {
-        // 新增模式
-        if (userTemplates.length >= 5) {
-          showStatus('最多只能儲存 5 個個人範本', 'error');
+        // 新增個人範本
+        if (userTemplates.length >= 10) {
+          showStatus('最多只能儲存 10 個個人範本', 'error');
           return;
         }
         userTemplates.push(templateData);
@@ -307,13 +349,29 @@
       renderUserTemplates();
     }
     
-    // 編輯範本
+    // 編輯系統範本（儲存為個人範本）
+    function editSystemTemplate(index) {
+      const template = systemTemplates[index];
+      if (!template) return;
+      
+      // 使用系統範本資料作為預設值
+      const templateData = {
+        name: template.name,
+        source: template.source,
+        medium: template.medium,
+        campaign: '' // 系統範本通常沒有預設 campaign
+      };
+      
+      showTemplateModal(true, templateData, -1, true); // 最後一個參數表示是系統範本
+    }
+    
+    // 編輯用戶範本
     function editUserTemplate(index) {
       const userTemplates = Storage.get('user_templates') || [];
       const template = userTemplates[index];
       if (!template) return;
       
-      showTemplateModal(true, template, index);
+      showTemplateModal(true, template, index, false);
     }
 
     // 事件綁定
@@ -326,6 +384,7 @@
       elements.addTemplate.addEventListener('click', showAddTemplate);
       elements.cancelTemplate.addEventListener('click', hideTemplateModal);
       elements.saveTemplate.addEventListener('click', saveTemplate);
+      document.getElementById('deleteTemplate').addEventListener('click', deleteCurrentTemplate);
       
       // 彈窗背景點擊關閉
       elements.templateModal.addEventListener('click', (e) => {
@@ -345,6 +404,7 @@
     // 全域函數
     window.useTemplate = useTemplate;
     window.useUserTemplate = useUserTemplate;
+    window.editSystemTemplate = editSystemTemplate;
     window.editUserTemplate = editUserTemplate;
     window.deleteUserTemplate = deleteUserTemplate;
   </script>
