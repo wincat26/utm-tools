@@ -1,0 +1,27 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Create secure config
+      run: |
+        cat > shared/secure-config.js << EOF
+        // 安全配置 - 由 GitHub Actions 自動生成
+        window.SECURE_CONFIG = {
+          GEMINI_API_KEY: '${{ secrets.GEMINI_API_KEY }}',
+          GOOGLE_APPS_SCRIPT_URL: '${{ secrets.GOOGLE_APPS_SCRIPT_URL }}'
+        };
+        EOF
+    
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./

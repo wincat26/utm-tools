@@ -2,12 +2,9 @@
 
 class DefaultConfig {
   constructor() {
+    console.warn('DefaultConfig 已棄用，請使用 SecureLoader');
     this.defaults = {
-      // Google Apps Script URL
-      sync_api_url: 'https://script.google.com/macros/s/AKfycbxmXzmwyGQhnnR2k3XsYIfSYV-601e8keq9qftoG8mi9hZnEIIOpqMPYY1RO5x6B33p-g/exec',
-      
-      // Gemini AI API Key
-      gemini_api_key: 'AIzaSyBVep_ohPIfsljmqljiNrL8EN03J3PMSMw'
+      // 敢感資料已移除，請使用 GitHub Secrets 或手動設定
     };
   }
 
