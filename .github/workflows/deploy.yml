@@ -21,13 +21,13 @@ jobs:
     
     - name: Create secure config
       run: |
-        cat > shared/secure-config.js << 'EOF'
-        // 安全配置 - 由 GitHub Actions 自動生成
-        window.SECURE_CONFIG = {
-          GEMINI_API_KEY: '${{ secrets.GEMINI_API_KEY }}',
-          GOOGLE_APPS_SCRIPT_URL: '${{ secrets.GOOGLE_APPS_SCRIPT_URL }}'
-        };
-        EOF
+        echo "// 安全配置 - 由 GitHub Actions 自動生成" > shared/secure-config.js
+        echo "window.SECURE_CONFIG = {" >> shared/secure-config.js
+        echo "  GEMINI_API_KEY: '${{ secrets.GEMINI_API_KEY }}'," >> shared/secure-config.js
+        echo "  GOOGLE_APPS_SCRIPT_URL: '${{ secrets.GOOGLE_APPS_SCRIPT_URL }}'" >> shared/secure-config.js
+        echo "};" >> shared/secure-config.js
+        echo "Generated secure config:"
+        cat shared/secure-config.js
     
     - name: Setup Pages
       uses: actions/configure-pages@v4
