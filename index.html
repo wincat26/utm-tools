@@ -26,11 +26,8 @@
       <!-- 快速範本按鈕 -->
       <div class="mb-6 p-4 bg-gray-50 rounded-lg">
         <h3 class="text-sm font-medium mb-3 text-gray-700">快速套用常用範本</h3>
-        <div class="flex flex-wrap gap-2">
-          <button class="template-btn" data-template="google_ads">Google Ads</button>
-          <button class="template-btn" data-template="facebook">Facebook</button>
-          <button class="template-btn" data-template="instagram">Instagram</button>
-          <button class="template-btn" data-template="edm">EDM</button>
+        <div id="quickTemplates" class="flex flex-wrap gap-2">
+          <!-- 範本按鈕將動態生成 -->
         </div>
       </div>
 
@@ -135,13 +132,15 @@
   <script src="shared/sync-api.js"></script>
   <script src="shared/url-shortener.js"></script>
   <script>
-    // 範本資料
-    const templates = {
-      google_ads: { source: 'google', medium: 'cpc' },
-      facebook: { source: 'facebook', medium: 'paid_social' },
-      instagram: { source: 'instagram', medium: 'paid_social' },
-      edm: { source: 'newsletter', medium: 'email' }
-    };
+    // 系統預設範本
+    const systemTemplates = [
+      { name: 'Google Ads', source: 'google', medium: 'cpc' },
+      { name: 'Facebook Ads', source: 'facebook', medium: 'paid_social' },
+      { name: 'Instagram Ads', source: 'instagram', medium: 'paid_social' },
+      { name: 'EDM Newsletter', source: 'newsletter', medium: 'email' },
+      { name: 'TikTok Ads', source: 'tiktok', medium: 'paid_social' },
+      { name: 'LINE 官方帳號', source: 'line_oa', medium: 'im' }
+    ];
 
     // DOM 元素
     const elements = {
@@ -184,14 +183,111 @@
     }
 
     // 套用範本
-    function applyTemplate(templateKey) {
-      const template = templates[templateKey];
-      if (template) {
-        elements.utmSource.value = template.source;
-        elements.utmMedium.value = template.medium;
-        updatePreview();
-        showStatus(`已套用 ${templateKey} 範本`, 'success');
+    function applyTemplate(source, medium, campaign = '', templateName = '') {
+      elements.utmSource.value = source;
+      elements.utmMedium.value = medium;
+      if (campaign) {
+        elements.utmCampaign.value = campaign;
       }
+      updatePreview();
+      
+      // 記錄使用歷史
+      recordTemplateUsage(source, medium, campaign, templateName);
+      
+      showStatus(`已套用 ${templateName || '範本'}`, 'success');
+    }
+    
+    // 記錄範本使用歷史
+    function recordTemplateUsage(source, medium, campaign, name) {
+      const usage = {
+        source,
+        medium,
+        campaign: campaign || '',
+        name: name || `${source}/${medium}`,
+        lastUsed: Date.now()
+      };
+      
+      let recentTemplates = Storage.get('recent_templates') || [];
+      
+      // 移除重複的範本
+      recentTemplates = recentTemplates.filter(t => 
+        !(t.source === source && t.medium === medium && t.campaign === campaign)
+      );
+      
+      // 加入到最前面
+      recentTemplates.unshift(usage);
+      
+      // 只保留最近10個
+      recentTemplates = recentTemplates.slice(0, 10);
+      
+      Storage.set('recent_templates', recentTemplates);
+      
+      // 更新快速範本顯示
+      renderQuickTemplates();
+    }
+    
+    // 渲染快速範本按鈕
+    function renderQuickTemplates() {
+      const container = document.getElementById('quickTemplates');
+      const recentTemplates = Storage.get('recent_templates') || [];
+      const userTemplates = Storage.get('user_templates') || [];
+      
+      let templates = [];
+      
+      // 1. 最近使用的範本（最多5個）
+      templates = templates.concat(recentTemplates.slice(0, 5).map(t => ({
+        ...t,
+        type: 'recent',
+        displayName: t.name
+      })));
+      
+      // 2. 個人範本（排除已在最近使用中的）
+      const recentKeys = recentTemplates.map(t => `${t.source}-${t.medium}-${t.campaign}`);
+      const unusedUserTemplates = userTemplates.filter(t => 
+        !recentKeys.includes(`${t.source}-${t.medium}-${t.campaign || ''}`)
+      ).slice(0, 3); // 最多3個
+      
+      templates = templates.concat(unusedUserTemplates.map(t => ({
+        ...t,
+        type: 'user',
+        displayName: t.name
+      })));
+      
+      // 3. 系統預設範本（填滿剩餘空間，最多8個總數）
+      const totalUsed = templates.length;
+      const remainingSlots = Math.max(0, 8 - totalUsed);
+      const usedSystemKeys = templates.map(t => `${t.source}-${t.medium}`);
+      const unusedSystemTemplates = systemTemplates.filter(t => 
+        !usedSystemKeys.includes(`${t.source}-${t.medium}`)
+      ).slice(0, remainingSlots);
+      
+      templates = templates.concat(unusedSystemTemplates.map(t => ({
+        ...t,
+        type: 'system',
+        displayName: t.name
+      })));
+      
+      // 渲染按鈕
+      container.innerHTML = templates.map(template => {
+        const typeClass = {
+          recent: 'bg-green-100 border-green-300 text-green-800 hover:bg-green-200',
+          user: 'bg-blue-100 border-blue-300 text-blue-800 hover:bg-blue-200',
+          system: 'bg-gray-100 border-gray-300 text-gray-800 hover:bg-gray-200'
+        }[template.type];
+        
+        const typeIcon = {
+          recent: '🕒',
+          user: '⭐',
+          system: '📋'
+        }[template.type];
+        
+        return `
+          <button class="template-btn ${typeClass}" 
+                  onclick="applyTemplate('${template.source}', '${template.medium}', '${template.campaign || ''}', '${template.displayName}')">
+            ${typeIcon} ${template.displayName}
+          </button>
+        `;
+      }).join('');
     }
 
     // 複製連結
@@ -421,12 +517,8 @@
         }
       });
 
-      // 範本按鈕
-      document.querySelectorAll('.template-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          applyTemplate(btn.dataset.template);
-        });
-      });
+      // 初始化快速範本
+      renderQuickTemplates();
 
       // 功能按鈕
       elements.copyButton.addEventListener('click', copyLink);
@@ -443,12 +535,13 @@
       updatePreview();
       runDiagnostics();
       updateAIStatus();
+      renderQuickTemplates();
     });
   </script>
 
   <style>
     .template-btn {
-      @apply px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors cursor-pointer;
+      @apply px-3 py-1 text-sm border rounded transition-colors cursor-pointer;
     }
     
     .status-message {
